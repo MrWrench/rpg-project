@@ -38,7 +38,7 @@ public abstract class BaseGauge
     Exhaust();
   }
 
-  void Update()
+  private void Update()
   {
     if (gauge > 0)
     {
@@ -49,7 +49,10 @@ public abstract class BaseGauge
         Exhaust();
       }
     }
+    OnUpdate();
   }
+  
+  protected virtual void OnUpdate() { }
 
   private void Trigger()
   {

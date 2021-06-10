@@ -1,4 +1,4 @@
-﻿public enum EnumDebuffType
+﻿public enum EnumStatusType
 {
   FIRE,
   CRYO,

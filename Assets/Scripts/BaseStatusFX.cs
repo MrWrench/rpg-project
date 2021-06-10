@@ -1,6 +1,6 @@
 ﻿public abstract class BaseStatusFX
 {
-  private Character target;
+  protected readonly Character target;
   protected bool started { get; private set; } = false;
 
   protected BaseStatusFX(Character target)
