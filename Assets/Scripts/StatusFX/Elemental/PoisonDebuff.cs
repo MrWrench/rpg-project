@@ -1,9 +1,11 @@
-﻿namespace StatusFX
+﻿using UnityEngine;
+
+namespace StatusFX
 {
   [DefaultStatusFX(EnumStatusType.POISON)]
   public sealed class PoisonDebuff : BaseGaugeStatusFX
   {
-    public override EnumStatusType statusType => EnumStatusType.FIRE;
+    public override EnumStatusType statusType => EnumStatusType.POISON;
 
     public PoisonDebuff(Character target) : base(target) { }
 
@@ -16,7 +18,7 @@
       if(!started)
         return;
     
-      target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate));
+      target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate), Time.deltaTime);
     }
   }
 }

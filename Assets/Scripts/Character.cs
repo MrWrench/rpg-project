@@ -44,7 +44,7 @@ public class Character : MonoBehaviour
   public void ApplyStatus(AddStatusInfo info)
   {
     var status = info.status;
-    if(gaugeDict.ContainsKey(status))
+    if(!gaugeDict.ContainsKey(status))
       ImplementGauge(DefaultStatusGaugePool.Instantiate(status, this));
     
     gaugeDict[status].Add(info);
@@ -77,4 +77,12 @@ public class Character : MonoBehaviour
   }
 
   public IReadOnlyList<BaseGaugeStatusFX> GetGauges() => gaugeList;
+
+  public void ClearStatus(EnumStatusType statusType)
+  {
+    if (gaugeDict.TryGetValue(statusType, out var statusFX))
+    {
+      statusFX.Clear();
+    }
+  }
 }

@@ -42,7 +42,8 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0",
-    "com.cysharp.csprojmodifier": "1.1.1"
+    "com.cysharp.csprojmodifier": "1.1.1",
+    "ga.fuquna.rapidgui": "1.2.2"
   },
   "scopedRegistries": [
     {
@@ -54,7 +55,8 @@
         "com.cysharp.zlogger",
         "com.dbrizov.naughtyattributes",
         "com.neuecc.unirx",
-        "com.openupm"
+        "com.openupm",
+        "ga.fuquna.rapidgui"
       ]
     }
   ]

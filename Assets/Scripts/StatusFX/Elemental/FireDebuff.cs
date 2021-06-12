@@ -1,20 +1,20 @@
-﻿namespace StatusFX
+﻿using UnityEngine;
+
+namespace StatusFX
 {
   [DefaultStatusFX(EnumStatusType.FIRE)]
   public sealed class FireDebuff : BaseGaugeStatusFX
   {
     public override EnumStatusType statusType => EnumStatusType.FIRE;
 
-    public FireDebuff(Character target) : base(target) { }
+    public FireDebuff(Character target) : base(target)
+    {
+      target.onGaugeTriggered += status => TryExplode();
+    }
 
     protected override void OnStart()
     {
-      var exploded = TryExplode();
-    
-      if(exploded)
-        return;
-
-      target.onGaugeTriggered += status => TryExplode();
+      TryExplode();
     }
 
     protected override void OnUpdate()
@@ -22,16 +22,18 @@
       if(!started)
         return;
     
-      target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate));
+      target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate), Time.deltaTime);
     }
 
     protected override void OnStop()
     {
-      target.onGaugeTriggered -= status => TryExplode();
     }
 
     private bool TryExplode()
     {
+      if (!started)
+        return false;
+      
       var gauges = target.GetGauges();
       var count = gauges.Count;
     
@@ -47,9 +49,9 @@
 
       if (totalDamage > 0)
       {
+        totalDamage += damage * amount;
         for (int i = 0; i < count; i++) 
           gauges[i].Clear();
-        totalDamage += damage * amount;
         target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, totalDamage));
         return true;
       }

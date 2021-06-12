@@ -25,7 +25,7 @@ namespace StatusFX
     {
       if (character == null) throw new ArgumentNullException(nameof(character));
       
-      if (defaultStatuses.ContainsKey(status_type))
+      if (!defaultStatuses.ContainsKey(status_type))
         throw new ArgumentException($"Default status effect for type {status_type} does not exist");
 
       var type = defaultStatuses[status_type];
