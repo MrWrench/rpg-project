@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 240640800}
   - component: {fileID: 240640799}
   - component: {fileID: 240640798}
-  - component: {fileID: 240640797}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -143,21 +142,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &240640797
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 240640796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b13900c29f8f46a6b3a2a407f14f4bde, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  maxPoise: 100
-  poiseDamageDebuff: 0
 --- !u!136 &240640798
 CapsuleCollider:
   m_ObjectHideFlags: 0

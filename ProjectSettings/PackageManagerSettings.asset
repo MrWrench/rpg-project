@@ -28,6 +28,7 @@ MonoBehaviour:
     m_Name: package.openupm.com
     m_Url: https://package.openupm.com
     m_Scopes:
+    - com.cysharp.csprojmodifier
     - com.cysharp.unitask
     - com.cysharp.zlogger
     - com.dbrizov.naughtyattributes
@@ -44,6 +45,7 @@ MonoBehaviour:
       m_Name: package.openupm.com
       m_Url: https://package.openupm.com
       m_Scopes:
+      - com.cysharp.csprojmodifier
       - com.cysharp.unitask
       - com.cysharp.zlogger
       - com.dbrizov.naughtyattributes
@@ -55,6 +57,7 @@ MonoBehaviour:
     m_Name: package.openupm.com
     m_Url: https://package.openupm.com
     m_Scopes:
+    - com.cysharp.csprojmodifier
     - com.cysharp.unitask
     - com.cysharp.zlogger
     - com.dbrizov.naughtyattributes

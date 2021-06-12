@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using StatusFX;
 using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-  public PersistentStats stats;
+  [SerializeField]
+  public PersistentStats stats = new PersistentStats();
 
   #region Stats
 
@@ -17,11 +19,10 @@ public class Character : MonoBehaviour
 
   #endregion
 
-  public event Action<BaseGauge> onGaugeTriggered; 
+  public event Action<BaseGaugeStatusFX>? onGaugeTriggered; 
 
-  private List<BaseGauge> gaugeList = new List<BaseGauge>();
-  private Dictionary<EnumStatusType, BaseGauge> gaugeDict = new Dictionary<EnumStatusType, BaseGauge>();
-  
+  private readonly List<BaseGaugeStatusFX> gaugeList = new List<BaseGaugeStatusFX>();
+  private readonly Dictionary<EnumStatusType, BaseGaugeStatusFX> gaugeDict = new Dictionary<EnumStatusType, BaseGaugeStatusFX>();
 
   // Start is called before the first frame update
   void Start()
@@ -30,17 +31,18 @@ public class Character : MonoBehaviour
     poise = stats.maxPoise;
   }
 
-  void AddGauge(EnumStatusType type, BaseStatusFX status_fx)
+  void ImplementGauge(EnumStatusType type, BaseGaugeStatusFX status_fx)
   {
-    var gauge = new StatusGauge(this, type, status_fx);
-    gaugeList.Add(gauge);
-    gaugeDict.Add(type, gauge);
-    gauge.onTriggered += base_gauge => onGaugeTriggered?.Invoke(base_gauge);
+    gaugeList.Add(status_fx);
+    gaugeDict.Add(type, status_fx);
+    status_fx.onTriggered += base_gauge => onGaugeTriggered?.Invoke(base_gauge);
   }
 
   // Update is called once per frame
   void Update()
   {
+    foreach (var gauge in gaugeList) 
+      gauge.Update();
   }
 
   public void ApplyDamage(DamageInfo info, float factor = 1)
@@ -56,5 +58,5 @@ public class Character : MonoBehaviour
     poise = stats.maxPoise;
   }
 
-  public IReadOnlyList<BaseGauge> GetGauges() => gaugeList;
+  public IReadOnlyList<BaseGaugeStatusFX> GetGauges() => gaugeList;
 }
