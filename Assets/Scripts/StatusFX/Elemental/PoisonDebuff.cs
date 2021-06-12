@@ -16,7 +16,7 @@
       if(!started)
         return;
     
-      target.ApplyDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate));
+      target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate));
     }
   }
 }

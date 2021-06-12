@@ -16,7 +16,7 @@ namespace StatusFX
 		public ElectroDebuff([NotNull] Character target) : base(target)
 		{
 			target.onTakeDamage += OnTakeDamage;
-			nextDischargeTime = GetNextDischargeTime();
+			Discharge();
 		}
 
 		protected override void OnUpdate()
@@ -24,6 +24,7 @@ namespace StatusFX
 			if(Time.time < nextDischargeTime)
 				return;
 			
+			Discharge();
 		}
 
 		protected override void OnStop()
@@ -31,12 +32,12 @@ namespace StatusFX
 			accumulatedDamage = 0;
 		}
 
-		private void OnTakeDamage(DamageInfo info)
+		private void OnTakeDamage(DamageInfo info, float factor)
 		{
 			if(!started)
 				return;
 			
-			accumulatedDamage += info.healthAmount;
+			accumulatedDamage += info.healthAmount * factor;
 		}
 
 		private void Discharge()
@@ -54,10 +55,10 @@ namespace StatusFX
 			foreach (var collider in colliders)
 			{
 				var victim = collider.GetComponent<Character>();
-				if(victim == null)
+				if(victim == null || victim == target)
 					return;
 				
-				victim.ApplyDamage(new DamageInfo(EnumDamageType.ELEMENTAL, accumulatedDamage * strength));
+				victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, accumulatedDamage * strength));
 			}
 
 			accumulatedDamage = 0;

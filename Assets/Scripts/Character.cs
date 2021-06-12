@@ -20,7 +20,9 @@ public class Character : MonoBehaviour
   #endregion
 
   public event Action<BaseGaugeStatusFX>? onGaugeTriggered; 
-  public event Action<DamageInfo>? onTakeDamage; 
+  
+  public delegate void TakeDamageDelegate(DamageInfo info, float factor);
+  public event TakeDamageDelegate? onTakeDamage; 
 
   private readonly List<BaseGaugeStatusFX> gaugeList = new List<BaseGaugeStatusFX>();
   private readonly Dictionary<EnumStatusType, BaseGaugeStatusFX> gaugeDict = new Dictionary<EnumStatusType, BaseGaugeStatusFX>();
@@ -55,11 +57,17 @@ public class Character : MonoBehaviour
       gauge.Update();
   }
 
-  public void ApplyDamage(DamageInfo info, float factor = 1)
+  public void TakeDamage(DamageInfo info, float factor = 1)
+  {
+    onTakeDamage?.Invoke(info, factor);
+    ApplyDamage(info, factor);
+  }
+
+  private void ApplyDamage(DamageInfo info, float factor)
   {
     health -= info.healthAmount * factor;
     poise -= (info.poiseAmount + poiseDamageDebuff) * factor;
-    if(poise <= 0)
+    if (poise <= 0)
       PoiseBreak();
   }
 

@@ -22,7 +22,7 @@
       if(!started)
         return;
     
-      target.ApplyDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate));
+      target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate));
     }
 
     protected override void OnStop()
@@ -50,7 +50,7 @@
         for (int i = 0; i < count; i++) 
           gauges[i].Clear();
         totalDamage += damage * amount;
-        target.ApplyDamage(new DamageInfo(EnumDamageType.ELEMENTAL, totalDamage));
+        target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, totalDamage));
         return true;
       }
 
