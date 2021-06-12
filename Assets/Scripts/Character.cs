@@ -20,6 +20,7 @@ public class Character : MonoBehaviour
   #endregion
 
   public event Action<BaseGaugeStatusFX>? onGaugeTriggered; 
+  public event Action<DamageInfo>? onTakeDamage; 
 
   private readonly List<BaseGaugeStatusFX> gaugeList = new List<BaseGaugeStatusFX>();
   private readonly Dictionary<EnumStatusType, BaseGaugeStatusFX> gaugeDict = new Dictionary<EnumStatusType, BaseGaugeStatusFX>();

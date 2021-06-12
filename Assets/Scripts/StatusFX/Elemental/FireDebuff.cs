@@ -1,6 +1,6 @@
 ﻿namespace StatusFX
 {
-  [DefaultImplOf(EnumStatusType.FIRE)]
+  [DefaultStatusFX(EnumStatusType.FIRE)]
   public sealed class FireDebuff : BaseGaugeStatusFX
   {
     public override EnumStatusType statusType => EnumStatusType.FIRE;
@@ -22,7 +22,12 @@
       if(!started)
         return;
     
-      target.ApplyDamage(new DamageInfo{healthAmount = damage * baseDecayRate, type = EnumDamageType.ELEMENTAL});
+      target.ApplyDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate));
+    }
+
+    protected override void OnStop()
+    {
+      target.onGaugeTriggered -= status => TryExplode();
     }
 
     private bool TryExplode()
@@ -45,7 +50,7 @@
         for (int i = 0; i < count; i++) 
           gauges[i].Clear();
         totalDamage += damage * amount;
-        target.ApplyDamage(new DamageInfo{healthAmount = totalDamage, type = EnumDamageType.ELEMENTAL});
+        target.ApplyDamage(new DamageInfo(EnumDamageType.ELEMENTAL, totalDamage));
         return true;
       }
 

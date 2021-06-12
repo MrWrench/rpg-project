@@ -1,4 +1,7 @@
-﻿namespace StatusFX
+﻿using System;
+using JetBrains.Annotations;
+
+namespace StatusFX
 {
   public abstract class BaseStatusFX
   {
@@ -6,9 +9,9 @@
     public bool started { get; private set; } = false;
     public abstract EnumStatusType statusType { get; }
 
-    protected BaseStatusFX(Character target)
+    protected BaseStatusFX([NotNull] Character target)
     {
-      this.target = target;
+      this.target = target != null ? target : throw new ArgumentNullException(nameof(target));
     }
 
     public virtual void Update()
