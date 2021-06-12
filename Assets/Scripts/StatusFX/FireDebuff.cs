@@ -36,7 +36,7 @@
         var status = gauges[i];
         if (status.started && status.statusType != statusType)
         {
-          totalDamage += damage * status.gauge;
+          totalDamage += damage * status.amount;
         }
       }
 
@@ -44,7 +44,7 @@
       {
         for (int i = 0; i < count; i++) 
           gauges[i].Clear();
-        totalDamage += damage * gauge;
+        totalDamage += damage * amount;
         target.ApplyDamage(new DamageInfo{healthAmount = totalDamage, type = EnumDamageType.ELEMENTAL});
         return true;
       }

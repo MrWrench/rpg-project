@@ -26,6 +26,9 @@ namespace StatusFX
       if (defaultStatuses.ContainsKey(status_type))
         throw new ArgumentException($"Default status for type {status_type} does not exist");
 
+      if (character == null)
+        throw new ArgumentNullException(nameof(character));
+
       var type = defaultStatuses[status_type];
       return (BaseGaugeStatusFX) Activator.CreateInstance(type, args: character);
     }

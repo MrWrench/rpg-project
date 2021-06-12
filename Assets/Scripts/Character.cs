@@ -31,15 +31,24 @@ public class Character : MonoBehaviour
     poise = stats.maxPoise;
   }
 
-  void ImplementGauge(EnumStatusType type, BaseGaugeStatusFX status_fx)
+  private void ImplementGauge(BaseGaugeStatusFX status_fx)
   {
     gaugeList.Add(status_fx);
-    gaugeDict.Add(type, status_fx);
+    gaugeDict.Add(status_fx.statusType, status_fx);
     status_fx.onTriggered += base_gauge => onGaugeTriggered?.Invoke(base_gauge);
   }
 
+  public void ApplyStatus(AddStatusInfo info)
+  {
+    var status = info.status;
+    if(gaugeDict.ContainsKey(status))
+      ImplementGauge(DefaultStatusGaugePool.Instantiate(status, this));
+    
+    gaugeDict[status].Add(info);
+  }
+
   // Update is called once per frame
-  void Update()
+  private void Update()
   {
     foreach (var gauge in gaugeList) 
       gauge.Update();

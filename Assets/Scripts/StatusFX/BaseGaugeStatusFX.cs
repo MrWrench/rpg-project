@@ -5,7 +5,7 @@ namespace StatusFX
 {
   public abstract class BaseGaugeStatusFX : BaseStatusFX
   {
-    public float gauge { get; private set; } = 0;
+    public float amount { get; private set; } = 0;
     public float strength { get; private set; } = 0;
     public float damage { get; private set; } = 0;
     public float baseDecayRate => 0.1f;
@@ -15,18 +15,27 @@ namespace StatusFX
     protected float decayRate => baseDecayRate;
   
     protected BaseGaugeStatusFX(Character target) : base(target) { }
-  
-    public void Add(float newGauge, float newStrength, float newDamage)
+
+    public void Add(AddStatusInfo info)
     {
+      if (info.amount > 1 || info.amount < 0)
+        throw new ArgumentOutOfRangeException($"{nameof(info)}.{nameof(info.amount)}");
+      
+      if (info.damage < 0)
+        throw new ArgumentOutOfRangeException($"{nameof(info)}.{nameof(info.damage)}");
+      
+      if (info.strength < 0)
+        throw new ArgumentOutOfRangeException($"{nameof(info)}.{nameof(info.strength)}");
+      
       if (started)
         return;
 
-      newGauge = Mathf.Min(1 - gauge, newGauge);
-      strength = (strength * gauge + newStrength * newGauge) / (gauge + newGauge);
-      damage = (damage * gauge + newDamage * newGauge) / (gauge + newGauge);
-      gauge += newGauge;
+      var addedAmount = Mathf.Min(1 - amount, info.amount);
+      strength = (strength * amount + info.strength * addedAmount) / (amount + addedAmount);
+      damage = (damage * amount + info.damage * addedAmount) / (amount + addedAmount);
+      amount += addedAmount;
 
-      if (gauge >= 1)
+      if (amount >= 1)
         Trigger();
     }
 
@@ -37,11 +46,11 @@ namespace StatusFX
 
     public sealed override void Update()
     {
-      if (gauge > 0)
+      if (amount > 0)
       {
-        gauge -= decayRate * Time.deltaTime;
+        amount -= decayRate * Time.deltaTime;
 
-        if (gauge <= 0)
+        if (amount <= 0)
         {
           Exhaust();
         }
@@ -51,14 +60,14 @@ namespace StatusFX
 
     private void Trigger()
     {
-      gauge = 1;
+      amount = 1;
       Start();
       onTriggered?.Invoke(this);
     }
 
     private void Exhaust()
     {
-      gauge = 0;
+      amount = 0;
       Stop();
     }
   }
