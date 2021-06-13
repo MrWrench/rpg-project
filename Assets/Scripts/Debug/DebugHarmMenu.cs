@@ -29,6 +29,8 @@ public class DebugHarmMenu : ExampleBase
 		if (_characters.Length > _targetIndex)
 			target = _characters[_targetIndex];
 		Character.OnSpawn += character => OnCharactersChanged();
+		Character.OnEnabled += character => OnCharactersChanged();
+		Character.OnDisabled += character => OnCharactersChanged();
 		Character.OnDestroyed += OnCharactersChanged;
 	}
 

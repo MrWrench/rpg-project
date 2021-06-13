@@ -33,9 +33,9 @@ namespace StatusFX
 
 		protected override void OnUpdate()
 		{
-			if(!started || Time.time < nextDischargeTime)
+			if (!started || Time.time < nextDischargeTime)
 				return;
-			
+
 			Discharge();
 		}
 
@@ -47,16 +47,16 @@ namespace StatusFX
 
 		private void OnTakeDamage(DamageInfo info, float factor)
 		{
-			if(!started)
+			if (!started)
 				return;
-			
+
 			accumulatedDamage += info.healthAmount * factor;
 		}
 
 		private void Discharge()
 		{
 			nextDischargeTime = GetNextDischargeTime();
-			
+
 			var dischargeDamage = GetDischargeTotalDamage();
 			var dischargePoiseDamage = GetDischargePoiseDamage();
 			target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL,
@@ -65,26 +65,30 @@ namespace StatusFX
 			accumulatedDamage -= dischargeDamage;
 
 			var colliders = Physics.OverlapSphere(target.transform.position, DISCHARGE_RADIUS);
-			if(colliders.Length > 0)
+			if (colliders.Length > 0)
 			{
+				var victims = colliders
+					.Select(x => x.GetComponent<Character>())
+					.Where(x => x != null && x != target)
+					.AsQueryable();
+
+				var victimCount = victims.Count() + 1; // Себя учитываем тоже
+				var dischargeSingleDamage = dischargeDamage / victimCount;
+				
 				var appliedStatuses = target.GetGauges()
 					.Where(x => x.started)
 					.Select(x => new AddStatusInfo(
 						x.statusType,
 						Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
-						x.damage,
-						x.strength)).ToList();
+						x.damage / victimCount,
+						x.strength / victimCount)).ToList();
 
-				foreach (var collider in colliders)
+				foreach (var victim in victims)
 				{
-					var victim = collider.GetComponent<Character>();
-					if (victim == null || victim == target)
-						continue;
-
-					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, dischargeDamage,
+					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, dischargeSingleDamage,
 						dischargePoiseDamage));
 
-					foreach (var statusInfo in appliedStatuses) 
+					foreach (var statusInfo in appliedStatuses)
 						victim.ApplyStatus(statusInfo);
 				}
 			}
@@ -99,8 +103,10 @@ namespace StatusFX
 
 		private float GetDischargeTotalDamage()
 		{
-			return accumulatedDamage * DISCHARGE_ACCUMULATED_DAMAGE_MULT * strength 
-			       + damage * DISCHARGE_DAMAGE_MULT;
+			var maxDamage = accumulatedDamage + damage;
+			var calculatedDamage = accumulatedDamage * DISCHARGE_ACCUMULATED_DAMAGE_MULT * strength
+			                       + damage * DISCHARGE_DAMAGE_MULT;
+			return Mathf.Min(calculatedDamage, maxDamage);
 		}
 
 		private static float GetNextDischargeTime()

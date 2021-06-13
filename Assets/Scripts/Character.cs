@@ -8,6 +8,8 @@ public class Character : MonoBehaviour
 {
   public static event Action<Character>? OnSpawn;
   public static event Action? OnDestroyed;
+  public static event Action<Character>? OnEnabled;
+  public static event Action<Character>? OnDisabled;
   
   [SerializeField]
   public PersistentStats stats = new PersistentStats();
@@ -65,6 +67,16 @@ public class Character : MonoBehaviour
   private void OnDestroy()
   {
     OnDestroyed?.Invoke();
+  }
+
+  private void OnEnable()
+  {
+    OnEnabled?.Invoke(this);
+  }
+
+  private void OnDisable()
+  {
+    OnDisabled?.Invoke(this);
   }
 
   public void TakeDamage(DamageInfo info, float factor = 1)
