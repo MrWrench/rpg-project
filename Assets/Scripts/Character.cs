@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
+  public static event Action<Character>? OnSpawn;
+  public static event Action? OnDestroyed;
+  
   [SerializeField]
   public PersistentStats stats = new PersistentStats();
 
@@ -32,6 +35,7 @@ public class Character : MonoBehaviour
   {
     health = stats.maxHealth;
     poise = stats.maxPoise;
+    OnSpawn?.Invoke(this);
   }
 
   private void ImplementGauge(BaseGaugeStatusFX status_fx)
@@ -41,8 +45,9 @@ public class Character : MonoBehaviour
     status_fx.onTriggered += base_gauge => onGaugeTriggered?.Invoke(base_gauge);
   }
 
-  public void ApplyStatus(AddStatusInfo info)
+  public void ApplyStatus(AddStatusInfo info, float factor = 1)
   {
+    info.amount *= factor;
     var status = info.status;
     if(!gaugeDict.ContainsKey(status))
       ImplementGauge(DefaultStatusGaugePool.Instantiate(status, this));
@@ -55,6 +60,11 @@ public class Character : MonoBehaviour
   {
     foreach (var gauge in gaugeList) 
       gauge.Update();
+  }
+
+  private void OnDestroy()
+  {
+    OnDestroyed?.Invoke();
   }
 
   public void TakeDamage(DamageInfo info, float factor = 1)

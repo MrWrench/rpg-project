@@ -7,6 +7,7 @@ namespace StatusFX
   {
     private const float DEBUFF_AMOUNT = 0.5f;
     public override EnumStatusType statusType => EnumStatusType.HYDRO;
+    public override bool isDebuff => true;
 
     public HydroDebuff([NotNull] Character target) : base(target) { }
 

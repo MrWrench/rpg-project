@@ -6,6 +6,7 @@ namespace StatusFX
   public sealed class PoisonDebuff : BaseGaugeStatusFX
   {
     public override EnumStatusType statusType => EnumStatusType.POISON;
+    public override bool isDebuff => true;
 
     public PoisonDebuff(Character target) : base(target) { }
 

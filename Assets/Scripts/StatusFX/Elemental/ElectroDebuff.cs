@@ -1,27 +1,39 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace StatusFX
 {
+	[DefaultStatusFX(EnumStatusType.ELECTRO)]
 	public class ElectroDebuff : BaseGaugeStatusFX
 	{
 		// TODO: move to config
 		private const float MAX_DISCHARGE_TIME = 3;
 		private const float MIN_DISCHARGE_TIME = 1;
 		private const float DISCHARGE_RADIUS = 5;
+		private const float DISCHARGE_POISE_DAMAGE = 10;
+		private const float DISCHARGE_DAMAGE_MULT = 0.3f;
+		private const float DISCHARGE_ACCUMULATED_DAMAGE_MULT = 0.7f;
+		private const float STATUS_SPREAD_MULT = 0.5f;
+		private const float STATUS_SPREAD_MAX = 0.7f;
 		public override EnumStatusType statusType => EnumStatusType.ELECTRO;
+		public override bool isDebuff => true;
+
 		private float accumulatedDamage;
 		private float nextDischargeTime;
 
 		public ElectroDebuff([NotNull] Character target) : base(target)
 		{
 			target.onTakeDamage += OnTakeDamage;
-			Discharge();
+		}
+
+		protected override void OnStart()
+		{
 		}
 
 		protected override void OnUpdate()
 		{
-			if(Time.time < nextDischargeTime)
+			if(!started || Time.time < nextDischargeTime)
 				return;
 			
 			Discharge();
@@ -30,6 +42,7 @@ namespace StatusFX
 		protected override void OnStop()
 		{
 			accumulatedDamage = 0;
+			nextDischargeTime = 0;
 		}
 
 		private void OnTakeDamage(DamageInfo info, float factor)
@@ -44,29 +57,55 @@ namespace StatusFX
 		{
 			nextDischargeTime = GetNextDischargeTime();
 			
-			if(accumulatedDamage <= 0)
-				return;
+			var dischargeDamage = GetDischargeTotalDamage();
+			var dischargePoiseDamage = GetDischargePoiseDamage();
+			target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL,
+				dischargeDamage,
+				dischargePoiseDamage));
+			accumulatedDamage -= dischargeDamage;
 
 			var colliders = Physics.OverlapSphere(target.transform.position, DISCHARGE_RADIUS);
-			
-			if(colliders.Length <= 0)
-				return;
-			
-			foreach (var collider in colliders)
+			if(colliders.Length > 0)
 			{
-				var victim = collider.GetComponent<Character>();
-				if(victim == null || victim == target)
-					return;
-				
-				victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, accumulatedDamage * strength));
+				var appliedStatuses = target.GetGauges()
+					.Where(x => x.started)
+					.Select(x => new AddStatusInfo(
+						x.statusType,
+						Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
+						x.damage,
+						x.strength)).ToList();
+
+				foreach (var collider in colliders)
+				{
+					var victim = collider.GetComponent<Character>();
+					if (victim == null || victim == target)
+						continue;
+
+					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, dischargeDamage,
+						dischargePoiseDamage));
+
+					foreach (var statusInfo in appliedStatuses) 
+						victim.ApplyStatus(statusInfo);
+				}
 			}
 
 			accumulatedDamage = 0;
 		}
-		
+
+		private float GetDischargePoiseDamage()
+		{
+			return DISCHARGE_POISE_DAMAGE * strength;
+		}
+
+		private float GetDischargeTotalDamage()
+		{
+			return accumulatedDamage * DISCHARGE_ACCUMULATED_DAMAGE_MULT * strength 
+			       + damage * DISCHARGE_DAMAGE_MULT;
+		}
+
 		private static float GetNextDischargeTime()
 		{
-			return Random.Range(MIN_DISCHARGE_TIME, MAX_DISCHARGE_TIME);
+			return Time.time + Random.Range(MIN_DISCHARGE_TIME, MAX_DISCHARGE_TIME);
 		}
 	}
 }

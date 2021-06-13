@@ -12,7 +12,7 @@ namespace StatusFX
   
     public event Action<BaseGaugeStatusFX>? onTriggered;
 
-    protected float decayRate => baseDecayRate;
+    protected float decayRate => baseDecayRate / (1 + target.debuffDurationMult);
   
     protected BaseGaugeStatusFX(Character target) : base(target) { }
 
@@ -31,9 +31,12 @@ namespace StatusFX
         return;
 
       var addedAmount = Mathf.Min(1 - amount, info.amount);
-      strength = (strength * amount + info.strength * addedAmount) / (amount + addedAmount);
-      damage = (damage * amount + info.damage * addedAmount) / (amount + addedAmount);
-      amount += addedAmount;
+      if(addedAmount > 0)
+      {
+        strength = (strength * amount + info.strength * addedAmount) / (amount + addedAmount);
+        damage = (damage * amount + info.damage * addedAmount) / (amount + addedAmount);
+        amount += addedAmount;
+      }
 
       if (amount >= 1)
         Trigger();

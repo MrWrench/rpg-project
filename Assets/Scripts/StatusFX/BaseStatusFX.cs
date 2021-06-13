@@ -8,6 +8,7 @@ namespace StatusFX
     protected readonly Character target;
     public bool started { get; private set; } = false;
     public abstract EnumStatusType statusType { get; }
+    public abstract bool isDebuff { get; }
 
     protected BaseStatusFX([NotNull] Character target)
     {
