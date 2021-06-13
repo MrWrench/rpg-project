@@ -1,28 +1,31 @@
-﻿using JetBrains.Annotations;
+﻿using System.Reflection;
+using JetBrains.Annotations;
 
 namespace StatusFX
 {
-  [DefaultStatusFX(EnumStatusType.CRYO)]
-  internal sealed class CryoDebuff: GaugeStatusEffect
-  {
-    private const float POISE_DEBUFF = 10;
-    public override EnumStatusType type => EnumStatusType.CRYO;
-    public override bool isDebuff => true;
+	[DefaultStatusEffect(EnumStatusType.CRYO, true)]
+	internal sealed class CryoDebuff : GaugeStatusEffect
+	{
+		private const float POISE_DEBUFF = 10;
 
-    private float appliedAmount;
+		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
 
-    public CryoDebuff([NotNull] Character target) : base(target) { }
+		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
 
-    protected override void OnStart()
-    {
-      appliedAmount = POISE_DEBUFF * strength;
-      target.poiseDamageDebuff += appliedAmount;
-    }
+		private float appliedAmount;
 
-    protected override void OnStop()
-    {
-      target.poiseDamageDebuff -= appliedAmount;
-      appliedAmount = 0;
-    }
-  }
+		public CryoDebuff([NotNull] Character target) : base(target) { }
+
+		protected override void OnStart()
+		{
+			appliedAmount = POISE_DEBUFF * strength;
+			target.poiseDamageDebuff += appliedAmount;
+		}
+
+		protected override void OnStop()
+		{
+			target.poiseDamageDebuff -= appliedAmount;
+			appliedAmount = 0;
+		}
+	}
 }

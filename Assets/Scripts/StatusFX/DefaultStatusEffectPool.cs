@@ -15,10 +15,10 @@ namespace StatusFX
       var statusEffectType = typeof(IStatusEffect);
       defaultStatusFX = statusEffectType
         .Assembly.GetTypes()
-        .Select(type => (attr: (DefaultStatusFX) type.GetCustomAttribute(typeof(DefaultStatusFX)),
+        .Select(type => (attr: (DefaultStatusEffectAttribute) type.GetCustomAttribute(typeof(DefaultStatusEffectAttribute)),
           type: type))
         .Where(tuple => tuple.type.IsSubclassOf(statusEffectType) && !tuple.type.IsAbstract && tuple.attr != null)
-        .ToDictionary(tuple => tuple.attr.status, tuple => tuple.type);
+        .ToDictionary(tuple => tuple.attr.type, tuple => tuple.type);
     }
 
     public static IStatusEffect Instantiate(EnumStatusType statusType, [NotNull] Character character)
@@ -31,6 +31,11 @@ namespace StatusFX
 
       var type = defaultStatusFX[statusType];
       return (IStatusEffect) Activator.CreateInstance(type, args: character);
+    }
+
+    public static Type? FindDefaultType(EnumStatusType statusType)
+    {
+      return defaultStatusFX.TryGetValue(statusType, out var result) ? result : null;
     }
   }
 }

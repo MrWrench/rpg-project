@@ -1,10 +1,11 @@
 ﻿using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using UnityEngine;
 
 namespace StatusFX
 {
-	[DefaultStatusFX(EnumStatusType.ELECTRO)]
+	[DefaultStatusEffect(EnumStatusType.ELECTRO, true)]
 	internal sealed class ElectroDebuff : GaugeStatusEffect
 	{
 		// TODO: move to config
@@ -16,19 +17,17 @@ namespace StatusFX
 		private const float DISCHARGE_ACCUMULATED_DAMAGE_MULT = 0.7f;
 		private const float STATUS_SPREAD_MULT = 0.5f;
 		private const float STATUS_SPREAD_MAX = 0.7f;
-		public override EnumStatusType type => EnumStatusType.ELECTRO;
-		public override bool isDebuff => true;
-
+		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
+		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
+		
 		private float accumulatedDamage;
 		private float nextDischargeTime;
 
-		public ElectroDebuff([NotNull] Character target) : base(target)
-		{
-			target.onTakeDamage += OnTakeDamage;
-		}
+		public ElectroDebuff([NotNull] Character target) : base(target) { }
 
 		protected override void OnStart()
 		{
+			target.onTakeDamage += OnTakeDamage;
 		}
 
 		protected override void OnUpdate()
@@ -41,6 +40,7 @@ namespace StatusFX
 
 		protected override void OnStop()
 		{
+			target.onTakeDamage -= OnTakeDamage;
 			accumulatedDamage = 0;
 			nextDischargeTime = 0;
 		}

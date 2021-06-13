@@ -1,28 +1,31 @@
-﻿using JetBrains.Annotations;
+﻿using System.Reflection;
+using JetBrains.Annotations;
 
 namespace StatusFX
 {
-  [DefaultStatusFX(EnumStatusType.HYDRO)]
-  internal sealed class HydroDebuff : GaugeStatusEffect
-  {
-    private const float DEBUFF_AMOUNT = 0.5f;
-    public override EnumStatusType type => EnumStatusType.HYDRO;
-    public override bool isDebuff => true;
+	[DefaultStatusEffect(EnumStatusType.HYDRO, true)]
+	internal sealed class HydroDebuff : GaugeStatusEffect
+	{
+		private const float DEBUFF_AMOUNT = 0.5f;
 
-    public HydroDebuff([NotNull] Character target) : base(target) { }
+		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
 
-    private float appliedAmount;
+		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
 
-    protected override void OnStart()
-    {
-      appliedAmount = DEBUFF_AMOUNT * strength;
-      target.debuffDurationMult += appliedAmount;
-    }
+		public HydroDebuff([NotNull] Character target) : base(target) { }
 
-    protected override void OnStop()
-    {
-      target.debuffDurationMult -= appliedAmount;
-      appliedAmount = 0;
-    }
-  }
+		private float appliedAmount;
+
+		protected override void OnStart()
+		{
+			appliedAmount = DEBUFF_AMOUNT * strength;
+			target.debuffDurationMult += appliedAmount;
+		}
+
+		protected override void OnStop()
+		{
+			target.debuffDurationMult -= appliedAmount;
+			appliedAmount = 0;
+		}
+	}
 }

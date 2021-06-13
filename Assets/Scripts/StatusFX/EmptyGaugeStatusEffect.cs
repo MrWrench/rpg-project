@@ -1,6 +1,8 @@
-﻿namespace StatusFX
+﻿using System.Reflection;
+
+namespace StatusFX
 {
-	public readonly struct EmptyGaugeStatusEffect : IReadOnlyGaugeStatusEffect
+	internal readonly struct EmptyGaugeStatusEffect : IReadOnlyGaugeStatusEffect
 	{
 		public bool isStarted => false;
 		public EnumStatusType type { get; }
@@ -9,10 +11,11 @@
 		public float damage => 0;
 		public float strength => 0;
 
-		public EmptyGaugeStatusEffect(EnumStatusType type, bool isDebuff)
+		public EmptyGaugeStatusEffect(EnumStatusType type)
 		{
 			this.type = type;
-			this.isDebuff = isDebuff;
+			isDebuff = DefaultStatusEffectPool.FindDefaultType(type)?.GetCustomAttribute<DefaultStatusEffectAttribute>()
+				.isDebuff ?? false;
 		}
 	}
 }

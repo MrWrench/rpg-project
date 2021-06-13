@@ -49,5 +49,10 @@ namespace StatusFX
     {
       return DefaultStatusEffectPool.Instantiate(requiredType, character);
     }
+
+    public IReadOnlyStatusEffect GetEmpty(EnumStatusType requiredType)
+    {
+      return new EmptyStatusEffect(requiredType);
+    }
   }
 }

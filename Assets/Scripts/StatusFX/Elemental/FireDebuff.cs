@@ -1,9 +1,10 @@
 ﻿using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace StatusFX
 {
-	[DefaultStatusFX(EnumStatusType.FIRE)]
+	[DefaultStatusEffect(EnumStatusType.FIRE, true)]
 	internal sealed class FireDebuff : GaugeStatusEffect
 	{
 		private const float EXPLOSION_RADIUS = 5;
@@ -13,12 +14,11 @@ namespace StatusFX
 		private const float EXPLOSION_POISE_DAMAGE = 40;
 		private const float HYDRO_STRENGTH_MULT = 0.5f;
 
-		public override EnumStatusType type => EnumStatusType.FIRE;
-		public override bool isDebuff => true;
+		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
 
-		public FireDebuff(Character target) : base(target)
-		{
-		}
+		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
+
+		public FireDebuff(Character target) : base(target) { }
 
 		protected override void OnStart()
 		{
@@ -51,7 +51,7 @@ namespace StatusFX
 
 			var gauges = target.GetGaugeStatusFX();
 			var count = gauges.Count;
-			
+
 			var electroStrength = 0f;
 			var cryoStrength = 0f;
 			var hydroStrength = 0f;
@@ -69,7 +69,7 @@ namespace StatusFX
 					totalStrength += status.strength;
 					totalAmount += status.amount;
 					statusCount++;
-					
+
 					switch (status.type)
 					{
 						case EnumStatusType.ELECTRO:
@@ -91,10 +91,10 @@ namespace StatusFX
 			{
 				totalDamage += damage * amount * strength; // Прибавляем сам огонь
 				totalDamage += totalDamage * hydroStrength * HYDRO_STRENGTH_MULT; // Прибавляем бонус от воды
-				
+
 				for (int i = 0; i < count; i++)
 					gauges[i].Clear();
-				
+
 				target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, totalDamage, poiseDamage));
 
 				if (electroStrength > 0)
@@ -108,7 +108,8 @@ namespace StatusFX
 			return false;
 		}
 
-		private void ExplodeAOE(float totalDamage, float totalAmount, float totalStrength, int statusCount, float poiseDamage)
+		private void ExplodeAOE(float totalDamage, float totalAmount, float totalStrength, int statusCount,
+			float poiseDamage)
 		{
 			var explosionDamage = totalDamage * EXPLOSION_DAMAGE_MULT;
 			var statusAmount = Mathf.Min(totalAmount * STATUS_SPREAD_MULT, 1);
@@ -121,7 +122,8 @@ namespace StatusFX
 				foreach (var victim in victims)
 				{
 					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, explosionDamage, poiseDamage));
-					victim.ApplyStatus(EnumStatusType.FIRE, new StatusEffectInfo(statusAmount, explosionDamage, explosionStength));
+					victim.ApplyStatus(EnumStatusType.FIRE,
+						new StatusEffectInfo(statusAmount, explosionDamage, explosionStength));
 				}
 			}
 		}
