@@ -1,16 +1,14 @@
 ﻿using System.Reflection;
 using UnityEngine;
 
-namespace StatusFX
+namespace StatusFX.Elemental
 {
 	[DefaultStatusEffect(EnumStatusType.POISON, true)]
-	internal sealed class PoisonDebuff : GaugeStatusEffect
+	internal sealed class PoisonDebuff : ElementalDebuff
 	{
 		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
 
 		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
-
-		public PoisonDebuff(Character target) : base(target) { }
 
 		protected override void OnUpdate()
 		{

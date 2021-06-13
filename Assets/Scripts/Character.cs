@@ -1,16 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using Debug;
+using JetBrains.Annotations;
 using StatusFX;
+using StatusFX.Generic;
+using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 
-public class Character : MonoBehaviour
+public class Character : MonoBehaviour, ICombatUnit
 {
-	public static event Action<Character>? OnSpawn;
-	public static event Action? OnDestroyed;
-	public static event Action<Character>? OnEnabled;
-	public static event Action<Character>? OnDisabled;
-
 	[SerializeField] public PersistentStats stats = new PersistentStats();
 
 	public EnumTeam team => _team;
@@ -26,61 +25,77 @@ public class Character : MonoBehaviour
 
 	#endregion
 
-	public event Action<IStatusEffect>? onStatusEffectStarted;
+	public event IDamageable.ApplyDamageDelegate? onAppliedDamage;
 
-	public delegate void TakeDamageDelegate(DamageInfo info, float factor);
-
-	public event TakeDamageDelegate? onTakeDamage;
-
-	public delegate void ApplyDamageDelegate(DamageInfo info);
-
-	public event ApplyDamageDelegate? onAppliedDamage;
-
-	private readonly List<IGaugeStatusEffect> gaugeStatusFXList = new List<IGaugeStatusEffect>();
-
-	private readonly Dictionary<EnumStatusType, IGaugeStatusEffect> gaugeStatusFXDict =
-		new Dictionary<EnumStatusType, IGaugeStatusEffect>();
+	private readonly List<IStatusEffect> statusFX = new List<IStatusEffect>();
+	private readonly Dictionary<EnumStatusType, IStatusEffect> statusFXDict = new Dictionary<EnumStatusType, IStatusEffect>();
 
 	private void Start()
 	{
 		health = stats.maxHealth;
 		poise = stats.maxPoise;
-		OnSpawn?.Invoke(this);
+		CharacterDebug.InvokeSpawn(this);
 	}
 
-	private void ImplementStatusEffect(IStatusEffect statusEffect)
+	bool IStatusFXCarrier.HasStatusEffectImplemented(EnumStatusType statusType) => HasStatusEffectImplemented(statusType);
+	private bool HasStatusEffectImplemented(EnumStatusType statusType) => statusFXDict.ContainsKey(statusType); 
+
+	void IStatusFXCarrier.ImplementStatusEffect([NotNull] IStatusEffect statusEffect)
 	{
-		if (statusEffect is IGaugeStatusEffect gaugeStatusEffect)
-		{
-			gaugeStatusFXList.Add(gaugeStatusEffect);
-			gaugeStatusFXDict.Add(statusEffect.type, gaugeStatusEffect);
-		}
+		if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
+		if (HasStatusEffectImplemented(statusEffect.type)) throw new ArgumentException(nameof(statusEffect));
 
-		statusEffect.onStarted += base_gauge => onStatusEffectStarted?.Invoke(base_gauge);
+		statusFX.Add(statusEffect);
+		statusFXDict.Add(statusEffect.type, statusEffect);
+		statusEffect.onStarted += OnStatusEffectStarted;
+		statusEffect.onStoped += OnStatusEffectStoped;
 	}
+
+	void IStatusFXCarrier.UnimplementStatusEffect([NotNull] IStatusEffect statusEffect)
+	{
+		if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
+		if (!HasStatusEffectImplemented(statusEffect.type)) throw new ArgumentException(nameof(statusEffect));
+
+		statusEffect.onStarted -= OnStatusEffectStarted;
+		statusEffect.onStoped -= OnStatusEffectStoped;
+		statusFX.Remove(statusEffect);
+		statusFXDict.Remove(statusEffect.type);
+	}
+
+	private void OnStatusEffectStarted(IStatusEffect statusEffect) => onStatusEffectStarted?.Invoke(statusEffect);
+	private void OnStatusEffectStoped(IStatusEffect statusEffect) => onStatusEffectStoped?.Invoke(statusEffect);
 
 	public void ApplyStatus(EnumStatusType statusType, StatusEffectInfo effectInfo, float factor = 1)
 	{
-		if (!gaugeStatusFXDict.ContainsKey(statusType))
-			ImplementStatusEffect(DefaultStatusEffectPool.Instantiate(statusType, this));
+		if (factor <= 0) throw new ArgumentOutOfRangeException(nameof(factor));
 
-		gaugeStatusFXDict[statusType].Add(effectInfo, factor);
+		if (!HasStatusEffectImplemented(statusType))
+		{
+			var newStatus = StatusEffect.GetDefault(statusType);
+			newStatus.LinkNewTarget(this);
+		}
+
+		if (!(GetStatusEffect(statusType) is IGaugeStatusEffect status))
+			throw new InvalidOperationException($"Status of type {statusType} is not {nameof(IGaugeStatusEffect)}");
+		status.Add(effectInfo, factor);
 	}
 
 	private void OnDestroy()
 	{
-		OnDestroyed?.Invoke();
+		CharacterDebug.InvokeDestroyed();
 	}
 
 	private void OnEnable()
 	{
-		OnEnabled?.Invoke(this);
+		CharacterDebug.InvokeEnabled(this);
 	}
 
 	private void OnDisable()
 	{
-		OnDisabled?.Invoke(this);
+		CharacterDebug.InvokeDisabled(this);
 	}
+
+	public event IDamageable.TakeDamageDelegate? onTakeDamage;
 
 	public void TakeDamage(DamageInfo info, float factor = 1)
 	{
@@ -106,21 +121,26 @@ public class Character : MonoBehaviour
 		poise = stats.maxPoise;
 	}
 
-	public IReadOnlyList<IGaugeStatusEffect> GetGaugeStatusFX() => gaugeStatusFXList;
-
-	public IReadOnlyGaugeStatusEffect GetGaugeStatusEffect(EnumStatusType statusType)
-	{
-		if (gaugeStatusFXDict.TryGetValue(statusType, out var result))
-			return result;
-
-		return GaugeStatusEffect.GetEmpty(statusType);
-	}
+	public event IStatusFXCarrier.StatusEffectChangeDelegate? onStatusEffectStarted;
+	public event IStatusFXCarrier.StatusEffectChangeDelegate? onStatusEffectStoped;
 
 	public void ClearStatus(EnumStatusType statusType)
 	{
-		if (gaugeStatusFXDict.TryGetValue(statusType, out var statusFX))
-		{
-			statusFX.Clear();
-		}
+		if(!HasStatusEffectImplemented(statusType))
+			return;
+		
+		if (!(GetStatusEffect(statusType) is IGaugeStatusEffect status))
+			throw new InvalidOperationException($"Status of type {statusType} is not {nameof(IGaugeStatusEffect)}");
+		
+		status.Clear();
 	}
+
+	public IEnumerable<IStatusEffect> GetStatusFX() => statusFX;
+
+	public IReadOnlyStatusEffect GetStatusEffect(EnumStatusType type)
+	{
+		return HasStatusEffectImplemented(type) ? statusFXDict[type] : StatusEffect.GetEmpty(type);
+	}
+
+	public IObservable<Unit> GetUpdateObservable() => this.UpdateAsObservable();
 }

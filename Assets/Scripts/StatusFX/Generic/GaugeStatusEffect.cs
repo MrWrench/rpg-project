@@ -1,20 +1,17 @@
 ﻿using System;
 using UnityEngine;
 
-namespace StatusFX
+namespace StatusFX.Generic
 {
-	public abstract class GaugeStatusEffect : StatusEffect, IGaugeStatusEffect
+	public abstract class GaugeStatusEffect<T> : StatusEffect<T>, IGaugeStatusEffect
+		where T : IStatusFXCarrier, IStatsCarrier, ISceneObject
 	{
 		public float amount { get; private set; }
 		public float strength { get; private set; }
 		public float damage { get; private set; }
-		public float baseDecayRate => 0.1f;
+		public float baseDecayRate => 0.1f; // TODO: To config
 
 		protected float decayRate => baseDecayRate / (1 + target.debuffDurationMult);
-
-		protected GaugeStatusEffect(Character target) : base(target)
-		{
-		}
 
 		public void Add(StatusEffectInfo effectInfo, float factor = 1)
 		{
@@ -42,12 +39,12 @@ namespace StatusFX
 			}
 
 			if (amount >= 1)
-				Trigger();
+				Start();
 		}
 
 		public void Clear()
 		{
-			Exhaust();
+			Stop();
 		}
 
 		protected sealed override void Update()
@@ -58,23 +55,23 @@ namespace StatusFX
 
 				if (amount <= 0)
 				{
-					Exhaust();
+					Stop();
 				}
 			}
 
 			base.Update();
 		}
 
-		private void Trigger()
+		public sealed override void Start()
 		{
 			amount = 1;
-			Start();
+			base.Start();
 		}
 
-		private void Exhaust()
+		public sealed override void Stop()
 		{
 			amount = 0;
-			Stop();
+			base.Stop();
 		}
 
 		public static IReadOnlyGaugeStatusEffect GetEmpty(EnumStatusType requiredType)

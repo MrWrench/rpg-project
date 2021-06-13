@@ -2,10 +2,10 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace StatusFX
+namespace StatusFX.Elemental
 {
 	[DefaultStatusEffect(EnumStatusType.FIRE, true)]
-	internal sealed class FireDebuff : GaugeStatusEffect
+	internal sealed class FireDebuff : ElementalDebuff
 	{
 		private const float EXPLOSION_RADIUS = 5;
 		private const float STATUS_SPREAD_MULT = 0.4f;
@@ -17,8 +17,6 @@ namespace StatusFX
 		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
 
 		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
-
-		public FireDebuff(Character target) : base(target) { }
 
 		protected override void OnStart()
 		{
@@ -49,8 +47,8 @@ namespace StatusFX
 			if (!isStarted)
 				return false;
 
-			var gauges = target.GetGaugeStatusFX();
-			var count = gauges.Count;
+			var gauges = target.GetStatusFX().OfType<IGaugeStatusEffect>().ToArray();
+			var count = gauges.Length;
 
 			var electroStrength = 0f;
 			var cryoStrength = 0f;

@@ -1,58 +1,29 @@
-﻿using System;
-using JetBrains.Annotations;
-using UniRx;
-using UniRx.Triggers;
-
-namespace StatusFX
+﻿namespace StatusFX
 {
-  public abstract class StatusEffect : IStatusEffect
-  {
-    protected readonly Character target;
-    public bool isStarted { get; private set; }
-    public abstract EnumStatusType type { get; }
-    public abstract bool isDebuff { get; }
-    
-    public event IStatusEffect.StartDelegate? onStarted;
-    public event IStatusEffect.StopDelegate? onStoped;
+	public abstract class StatusEffect : IStatusEffect
+	{
+		public abstract EnumStatusType type { get; }
+		public bool isStarted { get; private set; }
+		public abstract bool isDebuff { get; }
+		public abstract event IStatusEffect.StartDelegate? onStarted;
+		public abstract event IStatusEffect.StopDelegate? onStoped;
 
-    protected StatusEffect([NotNull] Character target)
-    {
-      this.target = target != null ? target : throw new ArgumentNullException(nameof(target));
-      this.target.UpdateAsObservable().Subscribe(_ => Update());
-    }
+		public abstract void Start();
 
-    protected virtual void Update()
-    {
-      OnUpdate();
-    }
+		public abstract void Stop();
 
-    protected virtual void OnUpdate() { }
+		public abstract void LinkNewTarget(IStatusFXCarrier newTarget);
 
-    public void Start()
-    {
-      isStarted = true;
-      OnStart();
-      onStarted?.Invoke(this);
-    }
-    protected virtual void OnStart() { }
-  
-    public void Stop()
-    {
-      isStarted = false;
-      OnStop();
-      onStoped?.Invoke(this);
-    }
+		public abstract void UnlinkCurrentTarget();
 
-    protected virtual void OnStop() { }
+		public static IStatusEffect GetDefault(EnumStatusType requiredType)
+		{
+			return DefaultStatusEffectPool.Instantiate(requiredType);
+		}
 
-    public IStatusEffect GetDefault(EnumStatusType requiredType, Character character)
-    {
-      return DefaultStatusEffectPool.Instantiate(requiredType, character);
-    }
-
-    public IReadOnlyStatusEffect GetEmpty(EnumStatusType requiredType)
-    {
-      return new EmptyStatusEffect(requiredType);
-    }
-  }
+		public static IReadOnlyStatusEffect GetEmpty(EnumStatusType requiredType)
+		{
+			return new EmptyStatusEffect(requiredType);
+		}
+	}
 }

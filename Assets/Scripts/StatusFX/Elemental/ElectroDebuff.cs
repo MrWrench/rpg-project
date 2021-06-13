@@ -1,12 +1,11 @@
 ﻿using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using UnityEngine;
 
-namespace StatusFX
+namespace StatusFX.Elemental
 {
 	[DefaultStatusEffect(EnumStatusType.ELECTRO, true)]
-	internal sealed class ElectroDebuff : GaugeStatusEffect
+	internal sealed class ElectroDebuff : ElementalDebuff
 	{
 		// TODO: move to config
 		private const float MAX_DISCHARGE_TIME = 3;
@@ -19,11 +18,9 @@ namespace StatusFX
 		private const float STATUS_SPREAD_MAX = 0.7f;
 		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
 		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
-		
+
 		private float accumulatedDamage;
 		private float nextDischargeTime;
-
-		public ElectroDebuff([NotNull] Character target) : base(target) { }
 
 		protected override void OnStart()
 		{
@@ -59,9 +56,7 @@ namespace StatusFX
 
 			var dischargeDamage = GetDischargeTotalDamage();
 			var dischargePoiseDamage = GetDischargePoiseDamage();
-			target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL,
-				dischargeDamage,
-				dischargePoiseDamage));
+			target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, dischargeDamage, dischargePoiseDamage));
 			accumulatedDamage -= dischargeDamage;
 
 			var victims = StatusEffectsQueries.FindFriendsInSphere(target, target.transform.position, DISCHARGE_RADIUS);
@@ -69,14 +64,15 @@ namespace StatusFX
 			{
 				var victimCount = victims.Count + 1; // Себя учитываем тоже
 				var dischargeSingleDamage = dischargeDamage / victimCount;
-				
-				var appliedStatuses = target.GetGaugeStatusFX()
-					.Where(x => x.isStarted)
+
+				var appliedStatuses = target.GetStatusFX()
+					.OfType<IGaugeStatusEffect?>()
+					.Where(x => x is {isStarted: true})
 					.Select(x => (statusType: x.type, statusStats:
 						new StatusEffectInfo(
-						Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
-						x.damage / victimCount,
-						x.strength / victimCount))).ToList();
+							Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
+							x.damage / victimCount,
+							x.strength / victimCount))).ToList();
 
 				foreach (var victim in victims)
 				{

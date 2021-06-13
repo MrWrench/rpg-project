@@ -1,10 +1,9 @@
 ﻿using System.Reflection;
-using JetBrains.Annotations;
 
-namespace StatusFX
+namespace StatusFX.Elemental
 {
 	[DefaultStatusEffect(EnumStatusType.CRYO, true)]
-	internal sealed class CryoDebuff : GaugeStatusEffect
+	internal sealed class CryoDebuff : ElementalDebuff
 	{
 		private const float POISE_DEBUFF = 10;
 
@@ -13,8 +12,6 @@ namespace StatusFX
 		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
 
 		private float appliedAmount;
-
-		public CryoDebuff([NotNull] Character target) : base(target) { }
 
 		protected override void OnStart()
 		{

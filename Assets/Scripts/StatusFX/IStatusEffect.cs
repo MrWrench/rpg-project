@@ -10,5 +10,8 @@
 
 		void Start();
 		void Stop();
+
+		void LinkNewTarget(IStatusFXCarrier newTarget);
+		void UnlinkCurrentTarget();
 	}
 }

@@ -1,18 +1,15 @@
 ﻿using System.Reflection;
-using JetBrains.Annotations;
 
-namespace StatusFX
+namespace StatusFX.Elemental
 {
 	[DefaultStatusEffect(EnumStatusType.HYDRO, true)]
-	internal sealed class HydroDebuff : GaugeStatusEffect
+	internal sealed class HydroDebuff : ElementalDebuff
 	{
 		private const float DEBUFF_AMOUNT = 0.5f;
 
 		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
 
 		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
-
-		public HydroDebuff([NotNull] Character target) : base(target) { }
 
 		private float appliedAmount;
 

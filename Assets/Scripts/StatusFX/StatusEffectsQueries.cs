@@ -8,34 +8,36 @@ namespace StatusFX
 {
 	internal static class StatusEffectsQueries
 	{
-		internal static IReadOnlyCollection<Character> FindFriendsInSphere([NotNull] Character character,
-			Vector3 position, float radius)
+		internal static IReadOnlyCollection<T> FindFriendsInSphere<T>([NotNull] T unit,
+			Vector3 position, float radius) where T : ICombatUnit
 		{
-			if (character == null)
-				throw new ArgumentNullException(nameof(character));
+			if (unit == null)
+				throw new ArgumentNullException(nameof(unit));
 			if (radius < 0) throw new ArgumentOutOfRangeException(nameof(radius));
 
 			var colliders = Physics.OverlapSphere(position, radius);
 			if (colliders.Length <= 0)
-				return Array.Empty<Character>();
+				return Array.Empty<T>();
 
-			return colliders.Select(x => x.GetComponent<Character>())
-				.Where(x => x != null && x.team == character.team && x != character).ToArray();
+			return colliders.Select(x => x.GetComponent<T>())
+				.Where(x => x != null && x.team == unit.team && !Equals(x, unit))
+				.ToArray();
 		}
 
-		internal static IReadOnlyCollection<Character> FindOtherInSphere([NotNull] Character character,
-			Vector3 position, float radius)
+		internal static IReadOnlyCollection<T> FindOtherInSphere<T>([NotNull] T unit,
+			Vector3 position, float radius) where T : ICombatUnit
 		{
-			if (character == null)
-				throw new ArgumentNullException(nameof(character));
+			if (unit == null)
+				throw new ArgumentNullException(nameof(unit));
 			if (radius < 0) throw new ArgumentOutOfRangeException(nameof(radius));
 
 			var colliders = Physics.OverlapSphere(position, radius);
 			if (colliders.Length <= 0)
-				return Array.Empty<Character>();
+				return Array.Empty<T>();
 
-			return colliders.Select(x => x.GetComponent<Character>())
-				.Where(x => x != null && x.team != character.team).ToArray();
+			return colliders.Select(x => x.GetComponent<T>())
+				.Where(x => x != null && x.team != unit.team)
+				.ToArray();
 		}
 	}
 }

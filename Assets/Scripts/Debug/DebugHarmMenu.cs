@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
+using Debug;
 using JetBrains.Annotations;
 using RapidGUI;
 using RapidGUI.Example;
@@ -45,10 +46,10 @@ public class DebugHarmMenu : ExampleBase
 		OnCharactersChanged();
 		if (_characters.Length > _targetIndex)
 			_currentTarget = _characters[_targetIndex];
-		Character.OnSpawn += character => OnCharactersChanged();
-		Character.OnEnabled += character => OnCharactersChanged();
-		Character.OnDisabled += character => OnCharactersChanged();
-		Character.OnDestroyed += OnCharactersChanged;
+		CharacterDebug.OnSpawn += character => OnCharactersChanged();
+		CharacterDebug.OnEnabled += character => OnCharactersChanged();
+		CharacterDebug.OnDisabled += character => OnCharactersChanged();
+		CharacterDebug.OnDestroyed += OnCharactersChanged;
 	}
 
 	private void OnCharactersChanged()
@@ -123,7 +124,7 @@ public class DebugHarmMenu : ExampleBase
 					GUILayout.FlexibleSpace();
 					GUILayout.Label("strength");
 				}
-				foreach (var gauge in target.GetGaugeStatusFX())
+				foreach (var gauge in target.GetStatusFX().OfType<IGaugeStatusEffect>())
 				{
 					using (new GUILayout.HorizontalScope())
 					{
