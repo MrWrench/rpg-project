@@ -4,7 +4,7 @@ using UnityEngine;
 namespace StatusFX
 {
 	[DefaultStatusFX(EnumStatusType.FIRE)]
-	public sealed class FireDebuff : BaseGaugeStatusFX
+	internal sealed class FireDebuff : GaugeStatusEffect
 	{
 		private const float EXPLOSION_RADIUS = 5;
 		private const float STATUS_SPREAD_MULT = 0.4f;
@@ -13,7 +13,7 @@ namespace StatusFX
 		private const float EXPLOSION_POISE_DAMAGE = 40;
 		private const float HYDRO_STRENGTH_MULT = 0.5f;
 
-		public override EnumStatusType statusType => EnumStatusType.FIRE;
+		public override EnumStatusType type => EnumStatusType.FIRE;
 		public override bool isDebuff => true;
 
 		public FireDebuff(Character target) : base(target)
@@ -28,7 +28,7 @@ namespace StatusFX
 
 		protected override void OnUpdate()
 		{
-			if (!started)
+			if (!isStarted)
 				return;
 
 			target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate), Time.deltaTime);
@@ -46,10 +46,10 @@ namespace StatusFX
 
 		private bool TryExplode()
 		{
-			if (!started)
+			if (!isStarted)
 				return false;
 
-			var gauges = target.GetStatusEffects();
+			var gauges = target.GetGaugeStatusFX();
 			var count = gauges.Count;
 			
 			var electroStrength = 0f;
@@ -63,14 +63,14 @@ namespace StatusFX
 			for (int i = 0; i < count; i++)
 			{
 				var status = gauges[i];
-				if (status.started && status.statusType != statusType)
+				if (status.isStarted && status.type != type)
 				{
 					totalDamage += status.damage * status.amount * strength;
 					totalStrength += status.strength;
 					totalAmount += status.amount;
 					statusCount++;
 					
-					switch (status.statusType)
+					switch (status.type)
 					{
 						case EnumStatusType.ELECTRO:
 							electroStrength = status.strength;

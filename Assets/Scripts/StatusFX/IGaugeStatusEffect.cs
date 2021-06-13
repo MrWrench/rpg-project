@@ -1,9 +1,8 @@
 ﻿namespace StatusFX
 {
-	public interface IGaugeStatusEffect : IStatusEffect
+	public interface IGaugeStatusEffect : IStatusEffect, IReadOnlyGaugeStatusEffect
 	{
-		float amount { get; }
-		float damage { get; }
-		float strength { get; }
+		void Add(StatusEffectInfo effectInfo, float factor = 1);
+		void Clear();
 	}
 }

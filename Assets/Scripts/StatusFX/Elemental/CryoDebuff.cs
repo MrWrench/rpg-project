@@ -3,10 +3,10 @@
 namespace StatusFX
 {
   [DefaultStatusFX(EnumStatusType.CRYO)]
-  public sealed class CryoDebuff: BaseGaugeStatusFX
+  internal sealed class CryoDebuff: GaugeStatusEffect
   {
     private const float POISE_DEBUFF = 10;
-    public override EnumStatusType statusType => EnumStatusType.CRYO;
+    public override EnumStatusType type => EnumStatusType.CRYO;
     public override bool isDebuff => true;
 
     private float appliedAmount;

@@ -1,6 +1,6 @@
 ﻿namespace StatusFX
 {
-	public interface IStatusEffect
+	public interface IStatusEffect : IReadOnlyStatusEffect
 	{
 		delegate void StartDelegate(IStatusEffect statusEffect);
 		event StartDelegate onStarted;
@@ -8,7 +8,6 @@
 		delegate void StopDelegate(IStatusEffect statusEffect);
 		event StopDelegate onStoped;
 
-		bool isDebuff { get; }
 		void Start();
 		void Stop();
 	}

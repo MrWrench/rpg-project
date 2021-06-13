@@ -5,7 +5,7 @@ using UnityEngine;
 namespace StatusFX
 {
 	[DefaultStatusFX(EnumStatusType.ELECTRO)]
-	public class ElectroDebuff : BaseGaugeStatusFX
+	internal sealed class ElectroDebuff : GaugeStatusEffect
 	{
 		// TODO: move to config
 		private const float MAX_DISCHARGE_TIME = 3;
@@ -16,7 +16,7 @@ namespace StatusFX
 		private const float DISCHARGE_ACCUMULATED_DAMAGE_MULT = 0.7f;
 		private const float STATUS_SPREAD_MULT = 0.5f;
 		private const float STATUS_SPREAD_MAX = 0.7f;
-		public override EnumStatusType statusType => EnumStatusType.ELECTRO;
+		public override EnumStatusType type => EnumStatusType.ELECTRO;
 		public override bool isDebuff => true;
 
 		private float accumulatedDamage;
@@ -33,7 +33,7 @@ namespace StatusFX
 
 		protected override void OnUpdate()
 		{
-			if (!started || Time.time < nextDischargeTime)
+			if (!isStarted || Time.time < nextDischargeTime)
 				return;
 
 			Discharge();
@@ -47,7 +47,7 @@ namespace StatusFX
 
 		private void OnTakeDamage(DamageInfo info, float factor)
 		{
-			if (!started)
+			if (!isStarted)
 				return;
 
 			accumulatedDamage += info.healthAmount * factor;
@@ -70,9 +70,9 @@ namespace StatusFX
 				var victimCount = victims.Count + 1; // Себя учитываем тоже
 				var dischargeSingleDamage = dischargeDamage / victimCount;
 				
-				var appliedStatuses = target.GetStatusEffects()
-					.Where(x => x.started)
-					.Select(x => (statusType: x.statusType, statusStats:
+				var appliedStatuses = target.GetGaugeStatusFX()
+					.Where(x => x.isStarted)
+					.Select(x => (statusType: x.type, statusStats:
 						new StatusEffectInfo(
 						Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
 						x.damage / victimCount,

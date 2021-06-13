@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace StatusFX
 {
-  public abstract class BaseGaugeStatusFX : BaseStatusFX, IGaugeStatusEffect
+  public abstract class GaugeStatusEffect : StatusEffect, IGaugeStatusEffect
   {
     public float amount { get; private set; }
     public float strength { get; private set; }
@@ -12,7 +12,7 @@ namespace StatusFX
   
     protected float decayRate => baseDecayRate / (1 + target.debuffDurationMult);
   
-    protected BaseGaugeStatusFX(Character target) : base(target) { }
+    protected GaugeStatusEffect(Character target) : base(target) { }
 
     public void Add(StatusEffectInfo effectInfo, float factor = 1)
     {
@@ -28,7 +28,7 @@ namespace StatusFX
       if (factor <= 0)
         throw new ArgumentOutOfRangeException(nameof(factor));
 
-      if (started)
+      if (isStarted)
         return;
 
       var addedAmount = Mathf.Min(1 - amount, effectInfo.amount * factor);
@@ -48,7 +48,7 @@ namespace StatusFX
       Exhaust();
     }
 
-    public sealed override void Update()
+    protected sealed override void Update()
     {
       if (amount > 0)
       {
@@ -59,7 +59,7 @@ namespace StatusFX
           Exhaust();
         }
       }
-      OnUpdate();
+      base.Update();
     }
 
     private void Trigger()
@@ -72,6 +72,11 @@ namespace StatusFX
     {
       amount = 0;
       Stop();
+    }
+
+    public static IReadOnlyGaugeStatusEffect GetEmpty(EnumStatusType requiredType)
+    {
+      return new EmptyGaugeStatusEffect(requiredType, false);
     }
   }
 }

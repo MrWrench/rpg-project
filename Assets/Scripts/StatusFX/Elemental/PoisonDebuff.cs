@@ -3,9 +3,9 @@
 namespace StatusFX
 {
   [DefaultStatusFX(EnumStatusType.POISON)]
-  public sealed class PoisonDebuff : BaseGaugeStatusFX
+  internal sealed class PoisonDebuff : GaugeStatusEffect
   {
-    public override EnumStatusType statusType => EnumStatusType.POISON;
+    public override EnumStatusType type => EnumStatusType.POISON;
     public override bool isDebuff => true;
 
     public PoisonDebuff(Character target) : base(target) { }
@@ -16,7 +16,7 @@ namespace StatusFX
 
     protected override void OnUpdate()
     {
-      if(!started)
+      if(!isStarted)
         return;
     
       target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate), Time.deltaTime);

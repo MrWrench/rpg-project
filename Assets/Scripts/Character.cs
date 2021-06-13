@@ -6,113 +6,121 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-  public static event Action<Character>? OnSpawn;
-  public static event Action? OnDestroyed;
-  public static event Action<Character>? OnEnabled;
-  public static event Action<Character>? OnDisabled;
-  
-  [SerializeField]
-  public PersistentStats stats = new PersistentStats();
+	public static event Action<Character>? OnSpawn;
+	public static event Action? OnDestroyed;
+	public static event Action<Character>? OnEnabled;
+	public static event Action<Character>? OnDisabled;
 
-  public EnumTeam team => _team;
-  [SerializeField] private EnumTeam _team;
+	[SerializeField] public PersistentStats stats = new PersistentStats();
 
-  #region Stats
+	public EnumTeam team => _team;
+	[SerializeField] private EnumTeam _team;
 
-  public float health { get; private set; }
-  public float poise { get; private set; }
-  
-  public float debuffDurationMult { get; set; }
-  public float poiseDamageDebuff { get; set; }
+	#region Stats
 
-  #endregion
+	public float health { get; private set; }
+	public float poise { get; private set; }
 
-  public event Action<IStatusEffect>? onStatusEffectStarted; 
-  
-  public delegate void TakeDamageDelegate(DamageInfo info, float factor);
-  public event TakeDamageDelegate? onTakeDamage;
-  
-  public delegate void ApplyDamageDelegate(DamageInfo info);
-  public event ApplyDamageDelegate? onAppliedDamage;
+	public float debuffDurationMult { get; set; }
+	public float poiseDamageDebuff { get; set; }
 
-  private readonly List<BaseGaugeStatusFX> statusFXList = new List<BaseGaugeStatusFX>();
-  private readonly Dictionary<EnumStatusType, BaseGaugeStatusFX> statusFXDict = new Dictionary<EnumStatusType, BaseGaugeStatusFX>();
+	#endregion
 
-  private void Start()
-  {
-    health = stats.maxHealth;
-    poise = stats.maxPoise;
-    OnSpawn?.Invoke(this);
-  }
+	public event Action<IStatusEffect>? onStatusEffectStarted;
 
-  private void ImplementGauge(BaseGaugeStatusFX status_fx)
-  {
-    statusFXList.Add(status_fx);
-    statusFXDict.Add(status_fx.statusType, status_fx);
-    status_fx.onStarted += base_gauge => onStatusEffectStarted?.Invoke(base_gauge);
-  }
+	public delegate void TakeDamageDelegate(DamageInfo info, float factor);
 
-  public void ApplyStatus(EnumStatusType statusType, StatusEffectInfo effectInfo, float factor = 1)
-  {
-    if(!statusFXDict.ContainsKey(statusType))
-      ImplementGauge(DefaultStatusGaugePool.Instantiate(statusType, this));
-    
-    statusFXDict[statusType].Add(effectInfo, factor);
-  }
+	public event TakeDamageDelegate? onTakeDamage;
 
-  // Update is called once per frame
-  private void Update()
-  {
-    foreach (var gauge in statusFXList) 
-      gauge.Update();
-  }
+	public delegate void ApplyDamageDelegate(DamageInfo info);
 
-  private void OnDestroy()
-  {
-    OnDestroyed?.Invoke();
-  }
+	public event ApplyDamageDelegate? onAppliedDamage;
 
-  private void OnEnable()
-  {
-    OnEnabled?.Invoke(this);
-  }
+	private readonly List<IGaugeStatusEffect> gaugeStatusFXList = new List<IGaugeStatusEffect>();
 
-  private void OnDisable()
-  {
-    OnDisabled?.Invoke(this);
-  }
+	private readonly Dictionary<EnumStatusType, IGaugeStatusEffect> gaugeStatusFXDict =
+		new Dictionary<EnumStatusType, IGaugeStatusEffect>();
 
-  public void TakeDamage(DamageInfo info, float factor = 1)
-  {
-    onTakeDamage?.Invoke(info, factor);
-    ApplyDamage(info, factor);
-  }
+	private void Start()
+	{
+		health = stats.maxHealth;
+		poise = stats.maxPoise;
+		OnSpawn?.Invoke(this);
+	}
 
-  private void ApplyDamage(DamageInfo info, float factor)
-  {
-    var healthAmount = info.healthAmount * factor;
-    health -= healthAmount;
-    var poiseAmount = (info.poiseAmount + poiseDamageDebuff) * factor;
-    poise -= poiseAmount;
-    if (poise <= 0)
-      PoiseBreak();
+	private void ImplementStatusEffect(IStatusEffect statusEffect)
+	{
+		if (statusEffect is IGaugeStatusEffect gaugeStatusEffect)
+		{
+			gaugeStatusFXList.Add(gaugeStatusEffect);
+			gaugeStatusFXDict.Add(statusEffect.type, gaugeStatusEffect);
+		}
 
-    var appliedDamage = new DamageInfo(info.type, healthAmount, poiseAmount);
-    onAppliedDamage?.Invoke(appliedDamage);
-  }
+		statusEffect.onStarted += base_gauge => onStatusEffectStarted?.Invoke(base_gauge);
+	}
 
-  private void PoiseBreak()
-  {
-    poise = stats.maxPoise;
-  }
+	public void ApplyStatus(EnumStatusType statusType, StatusEffectInfo effectInfo, float factor = 1)
+	{
+		if (!gaugeStatusFXDict.ContainsKey(statusType))
+			ImplementStatusEffect(DefaultStatusEffectPool.Instantiate(statusType, this));
 
-  public IReadOnlyList<BaseGaugeStatusFX> GetStatusEffects() => statusFXList;
+		gaugeStatusFXDict[statusType].Add(effectInfo, factor);
+	}
 
-  public void ClearStatus(EnumStatusType statusType)
-  {
-    if (statusFXDict.TryGetValue(statusType, out var statusFX))
-    {
-      statusFX.Clear();
-    }
-  }
+	private void OnDestroy()
+	{
+		OnDestroyed?.Invoke();
+	}
+
+	private void OnEnable()
+	{
+		OnEnabled?.Invoke(this);
+	}
+
+	private void OnDisable()
+	{
+		OnDisabled?.Invoke(this);
+	}
+
+	public void TakeDamage(DamageInfo info, float factor = 1)
+	{
+		onTakeDamage?.Invoke(info, factor);
+		ApplyDamage(info, factor);
+	}
+
+	private void ApplyDamage(DamageInfo info, float factor)
+	{
+		var healthAmount = info.healthAmount * factor;
+		health -= healthAmount;
+		var poiseAmount = (info.poiseAmount + poiseDamageDebuff) * factor;
+		poise -= poiseAmount;
+		if (poise <= 0)
+			PoiseBreak();
+
+		var appliedDamage = new DamageInfo(info.type, healthAmount, poiseAmount);
+		onAppliedDamage?.Invoke(appliedDamage);
+	}
+
+	private void PoiseBreak()
+	{
+		poise = stats.maxPoise;
+	}
+
+	public IReadOnlyList<IGaugeStatusEffect> GetGaugeStatusFX() => gaugeStatusFXList;
+
+	public IReadOnlyGaugeStatusEffect GetGaugeStatusEffect(EnumStatusType statusType)
+	{
+		if (gaugeStatusFXDict.TryGetValue(statusType, out var result))
+			return result;
+
+		return GaugeStatusEffect.GetEmpty(statusType);
+	}
+
+	public void ClearStatus(EnumStatusType statusType)
+	{
+		if (gaugeStatusFXDict.TryGetValue(statusType, out var statusFX))
+		{
+			statusFX.Clear();
+		}
+	}
 }

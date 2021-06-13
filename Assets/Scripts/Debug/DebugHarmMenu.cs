@@ -123,11 +123,11 @@ public class DebugHarmMenu : ExampleBase
 					GUILayout.FlexibleSpace();
 					GUILayout.Label("strength");
 				}
-				foreach (var gauge in target.GetStatusEffects())
+				foreach (var gauge in target.GetGaugeStatusFX())
 				{
 					using (new GUILayout.HorizontalScope())
 					{
-						GUILayout.Label(gauge.statusType.ToString());
+						GUILayout.Label(gauge.type.ToString());
 						GUILayout.FlexibleSpace();
 						GUILayout.Label(gauge.amount.ToString("P"));
 						GUILayout.FlexibleSpace();
