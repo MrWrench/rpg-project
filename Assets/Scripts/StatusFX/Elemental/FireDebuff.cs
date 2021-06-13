@@ -23,7 +23,7 @@ namespace StatusFX
 		protected override void OnStart()
 		{
 			if (!TryExplode())
-				target.onGaugeTriggered += OnGaugeTriggered;
+				target.onStatusEffectStarted += OnStatusEffectStarted;
 		}
 
 		protected override void OnUpdate()
@@ -36,10 +36,10 @@ namespace StatusFX
 
 		protected override void OnStop()
 		{
-			target.onGaugeTriggered -= OnGaugeTriggered;
+			target.onStatusEffectStarted -= OnStatusEffectStarted;
 		}
 
-		private void OnGaugeTriggered(BaseGaugeStatusFX obj)
+		private void OnStatusEffectStarted(IStatusEffect statusEffect)
 		{
 			TryExplode();
 		}
@@ -126,7 +126,7 @@ namespace StatusFX
 					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, explosionDamage,
 						poiseDamage));
 
-					victim.ApplyStatus(new AddStatusInfo(EnumStatusType.FIRE, statusAmount, explosionDamage, explosionStength));
+					victim.ApplyStatus(EnumStatusType.FIRE, new AddStatusInfo(statusAmount, explosionDamage, explosionStength));
 				}
 			}
 		}

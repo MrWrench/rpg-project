@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using RapidGUI;
 using RapidGUI.Example;
 using StatusFX;
@@ -8,26 +9,21 @@ using UnityEngine;
 public class DebugHarmMenu : ExampleBase
 {
 	private Character[] _characters = null!;
-	private int _targetIndex = 0;
-	[SerializeField] private Character? target;
+	private int _targetIndex;
+	private Character? _currentTarget;
 	private Vector2 _statusScrollPos;
-	private AddStatusInfo _statusInfo = new AddStatusInfo();
-	private DamageInfo _damageInfo = new DamageInfo();
-	private string[] _enumStatusTypeValues = null!;
-	private bool _statusesUnfolded = false;
-	private bool _statusInfoUnfolded = false;
-	private bool _damageUnfolded = false;
-
-	private void Awake()
-	{
-		_enumStatusTypeValues = Enum.GetNames(typeof(EnumStatusType));
-	}
+	private AddStatusInfo _statusInfo;
+	private DamageInfo _damageInfo;
+	private bool _statusesUnfolded;
+	private bool _statusInfoUnfolded;
+	private bool _damageUnfolded;
+	private EnumStatusType _statusType;
 
 	private void Start()
 	{
 		OnCharactersChanged();
 		if (_characters.Length > _targetIndex)
-			target = _characters[_targetIndex];
+			_currentTarget = _characters[_targetIndex];
 		Character.OnSpawn += character => OnCharactersChanged();
 		Character.OnEnabled += character => OnCharactersChanged();
 		Character.OnDisabled += character => OnCharactersChanged();
@@ -38,7 +34,7 @@ public class DebugHarmMenu : ExampleBase
 	{
 		_characters = FindObjectsOfType<Character>();
 		Array.Reverse(_characters);
-		_targetIndex = target != null ? Array.IndexOf(_characters, target) : 0;
+		_targetIndex = _currentTarget != null ? Array.IndexOf(_characters, _currentTarget) : 0;
 	}
 
 	public override void DoGUI()
@@ -49,21 +45,21 @@ public class DebugHarmMenu : ExampleBase
 			if (GUILayout.Button("◀"))
 				SwitchTarget(-1);
 			GUILayout.FlexibleSpace();
-			var targetName = target != null ? target.gameObject.name : "null";
+			var targetName = _currentTarget != null ? _currentTarget.gameObject.name : "null";
 			GUILayout.Label($"<b>{targetName}</b>", textAlign);
 			GUILayout.FlexibleSpace();
 			if (GUILayout.Button("▶"))
 				SwitchTarget(1);
 		}
 		
-		if (target == null)
+		if (_currentTarget == null)
 			return;
-		GUILayout.Label($"Health: {target.health:N1}", textAlign);
-		GUILayout.Label($"Poise: {target.poise:N1}", textAlign);
+		GUILayout.Label($"Health: {_currentTarget.health:N1}", textAlign);
+		GUILayout.Label($"Poise: {_currentTarget.poise:N1}", textAlign);
 
-		DrawStatuses();
-		DrawApplyStatus();
-		DrawDamage();
+		DrawStatuses(_currentTarget);
+		DrawApplyStatus(_currentTarget);
+		DrawDamage(_currentTarget);
 	}
 
 	void SwitchTarget(int delta)
@@ -73,11 +69,14 @@ public class DebugHarmMenu : ExampleBase
 			_targetIndex = Math.Max(_characters.Length - 1, 0);
 
 		if (_targetIndex < _characters.Length)
-			target = _characters[_targetIndex];
+			_currentTarget = _characters[_targetIndex];
 	}
 
-	private void DrawDamage()
+	private void DrawDamage([NotNull] Character target)
 	{
+		if (target == null) 
+			throw new ArgumentNullException(nameof(target));
+		
 		_damageUnfolded = Fold.DoGUIHeader(_damageUnfolded, "Apply Damage");
 		if (!_damageUnfolded) return;
 		using (new RGUI.IndentScope())
@@ -89,8 +88,11 @@ public class DebugHarmMenu : ExampleBase
 		}
 	}
 
-	private void DrawStatuses()
+	private void DrawStatuses([NotNull] Character target)
 	{
+		if (target == null) 
+			throw new ArgumentNullException(nameof(target));
+		
 		_statusesUnfolded = Fold.DoGUIHeader(_statusesUnfolded, "Statuses");
 		if (!_statusesUnfolded) return;
 
@@ -127,14 +129,17 @@ public class DebugHarmMenu : ExampleBase
 		}
 	}
 
-	private void DrawApplyStatus()
+	private void DrawApplyStatus([NotNull] Character target)
 	{
+		if (target == null) 
+			throw new ArgumentNullException(nameof(target));
+		
 		_statusInfoUnfolded = Fold.DoGUIHeader(_statusInfoUnfolded, "Apply Status");
 		if (!_statusInfoUnfolded) return;
 
 		using (new RGUI.IndentScope())
 		{
-			_statusInfo.status = RGUI.Field(_statusInfo.status, "Status");
+			_statusType = RGUI.Field(_statusType, "Status");
 			_statusInfo.amount = RGUI.Slider(_statusInfo.amount, 0f, 1f, "Amount");
 			_statusInfo.damage = RGUI.Field(_statusInfo.damage, "Damage");
 			_statusInfo.strength = RGUI.Field(_statusInfo.strength, "Strength");
@@ -142,9 +147,9 @@ public class DebugHarmMenu : ExampleBase
 			using (new GUILayout.HorizontalScope())
 			{
 				if (GUILayout.Button("Add Status"))
-					target.ApplyStatus(_statusInfo);
+					target.ApplyStatus(_statusType, _statusInfo);
 				if (GUILayout.Button("Clear Status"))
-					target.ClearStatus(_statusInfo.status);
+					target.ClearStatus(_statusType);
 			}
 		}
 	}

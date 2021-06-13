@@ -77,11 +77,11 @@ namespace StatusFX
 				
 				var appliedStatuses = target.GetGauges()
 					.Where(x => x.started)
-					.Select(x => new AddStatusInfo(
-						x.statusType,
+					.Select(x => (statusType: x.statusType, statusStats:
+						new AddStatusInfo(
 						Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
 						x.damage / victimCount,
-						x.strength / victimCount)).ToList();
+						x.strength / victimCount))).ToList();
 
 				foreach (var victim in victims)
 				{
@@ -89,7 +89,7 @@ namespace StatusFX
 						dischargePoiseDamage));
 
 					foreach (var statusInfo in appliedStatuses)
-						victim.ApplyStatus(statusInfo);
+						victim.ApplyStatus(statusInfo.statusType, statusInfo.statusStats);
 				}
 			}
 

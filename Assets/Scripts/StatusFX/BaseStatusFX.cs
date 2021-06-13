@@ -3,12 +3,15 @@ using JetBrains.Annotations;
 
 namespace StatusFX
 {
-  public abstract class BaseStatusFX
+  public abstract class BaseStatusFX : IStatusEffect
   {
     protected readonly Character target;
-    public bool started { get; private set; } = false;
+    public bool started { get; private set; }
     public abstract EnumStatusType statusType { get; }
     public abstract bool isDebuff { get; }
+    
+    public event IStatusEffect.StartDelegate? onStarted;
+    public event IStatusEffect.StopDelegate? onStoped;
 
     protected BaseStatusFX([NotNull] Character target)
     {
@@ -26,6 +29,7 @@ namespace StatusFX
     {
       started = true;
       OnStart();
+      onStarted?.Invoke(this);
     }
     protected virtual void OnStart() { }
   
@@ -33,8 +37,9 @@ namespace StatusFX
     {
       started = false;
       OnStop();
+      onStoped?.Invoke(this);
     }
-  
+
     protected virtual void OnStop() { }
   }
 }

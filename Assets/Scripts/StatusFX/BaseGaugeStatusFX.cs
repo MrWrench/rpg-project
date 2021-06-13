@@ -3,15 +3,13 @@ using UnityEngine;
 
 namespace StatusFX
 {
-  public abstract class BaseGaugeStatusFX : BaseStatusFX
+  public abstract class BaseGaugeStatusFX : BaseStatusFX, IGaugeStatusEffect
   {
-    public float amount { get; private set; } = 0;
-    public float strength { get; private set; } = 0;
-    public float damage { get; private set; } = 0;
+    public float amount { get; private set; }
+    public float strength { get; private set; }
+    public float damage { get; private set; }
     public float baseDecayRate => 0.1f;
   
-    public event Action<BaseGaugeStatusFX>? onTriggered;
-
     protected float decayRate => baseDecayRate / (1 + target.debuffDurationMult);
   
     protected BaseGaugeStatusFX(Character target) : base(target) { }
@@ -65,7 +63,6 @@ namespace StatusFX
     {
       amount = 1;
       Start();
-      onTriggered?.Invoke(this);
     }
 
     private void Exhaust()
