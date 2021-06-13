@@ -14,25 +14,28 @@ namespace StatusFX
   
     protected BaseGaugeStatusFX(Character target) : base(target) { }
 
-    public void Add(AddStatusInfo info)
+    public void Add(StatusEffectInfo effectInfo, float factor = 1)
     {
-      if (info.amount > 1 || info.amount < 0)
-        throw new ArgumentOutOfRangeException($"{nameof(info)}.{nameof(info.amount)}");
+      if (effectInfo.amount > 1 || effectInfo.amount < 0)
+        throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.amount)}");
       
-      if (info.damage < 0)
-        throw new ArgumentOutOfRangeException($"{nameof(info)}.{nameof(info.damage)}");
+      if (effectInfo.damage < 0)
+        throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.damage)}");
       
-      if (info.strength < 0)
-        throw new ArgumentOutOfRangeException($"{nameof(info)}.{nameof(info.strength)}");
+      if (effectInfo.strength < 0)
+        throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.strength)}");
       
+      if (factor <= 0)
+        throw new ArgumentOutOfRangeException(nameof(factor));
+
       if (started)
         return;
 
-      var addedAmount = Mathf.Min(1 - amount, info.amount);
+      var addedAmount = Mathf.Min(1 - amount, effectInfo.amount * factor);
       if(addedAmount > 0)
       {
-        strength = (strength * amount + info.strength * addedAmount) / (amount + addedAmount);
-        damage = (damage * amount + info.damage * addedAmount) / (amount + addedAmount);
+        strength = (strength * amount + effectInfo.strength * addedAmount) / (amount + addedAmount);
+        damage = (damage * amount + effectInfo.damage * addedAmount) / (amount + addedAmount);
         amount += addedAmount;
       }
 

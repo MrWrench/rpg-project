@@ -64,21 +64,16 @@ namespace StatusFX
 				dischargePoiseDamage));
 			accumulatedDamage -= dischargeDamage;
 
-			var colliders = Physics.OverlapSphere(target.transform.position, DISCHARGE_RADIUS);
-			if (colliders.Length > 0)
+			var victims = StatusEffectsQueries.FindFriendsInSphere(target, target.transform.position, DISCHARGE_RADIUS);
+			if (victims.Count > 0)
 			{
-				var victims = colliders
-					.Select(x => x.GetComponent<Character>())
-					.Where(x => x != null && x != target)
-					.AsQueryable();
-
-				var victimCount = victims.Count() + 1; // Себя учитываем тоже
+				var victimCount = victims.Count + 1; // Себя учитываем тоже
 				var dischargeSingleDamage = dischargeDamage / victimCount;
 				
-				var appliedStatuses = target.GetGauges()
+				var appliedStatuses = target.GetStatusEffects()
 					.Where(x => x.started)
 					.Select(x => (statusType: x.statusType, statusStats:
-						new AddStatusInfo(
+						new StatusEffectInfo(
 						Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
 						x.damage / victimCount,
 						x.strength / victimCount))).ToList();

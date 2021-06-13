@@ -14,23 +14,29 @@ public class Character : MonoBehaviour
   [SerializeField]
   public PersistentStats stats = new PersistentStats();
 
+  public EnumTeam team => _team;
+  [SerializeField] private EnumTeam _team;
+
   #region Stats
 
   public float health { get; private set; }
   public float poise { get; private set; }
   
-  public float debuffDurationMult;
-  public float poiseDamageDebuff;
+  public float debuffDurationMult { get; set; }
+  public float poiseDamageDebuff { get; set; }
 
   #endregion
 
   public event Action<IStatusEffect>? onStatusEffectStarted; 
   
   public delegate void TakeDamageDelegate(DamageInfo info, float factor);
-  public event TakeDamageDelegate? onTakeDamage; 
+  public event TakeDamageDelegate? onTakeDamage;
+  
+  public delegate void ApplyDamageDelegate(DamageInfo info);
+  public event ApplyDamageDelegate? onAppliedDamage;
 
-  private readonly List<BaseGaugeStatusFX> statusList = new List<BaseGaugeStatusFX>();
-  private readonly Dictionary<EnumStatusType, BaseGaugeStatusFX> statusDict = new Dictionary<EnumStatusType, BaseGaugeStatusFX>();
+  private readonly List<BaseGaugeStatusFX> statusFXList = new List<BaseGaugeStatusFX>();
+  private readonly Dictionary<EnumStatusType, BaseGaugeStatusFX> statusFXDict = new Dictionary<EnumStatusType, BaseGaugeStatusFX>();
 
   private void Start()
   {
@@ -41,24 +47,23 @@ public class Character : MonoBehaviour
 
   private void ImplementGauge(BaseGaugeStatusFX status_fx)
   {
-    statusList.Add(status_fx);
-    statusDict.Add(status_fx.statusType, status_fx);
+    statusFXList.Add(status_fx);
+    statusFXDict.Add(status_fx.statusType, status_fx);
     status_fx.onStarted += base_gauge => onStatusEffectStarted?.Invoke(base_gauge);
   }
 
-  public void ApplyStatus(EnumStatusType statusType, AddStatusInfo info, float factor = 1)
+  public void ApplyStatus(EnumStatusType statusType, StatusEffectInfo effectInfo, float factor = 1)
   {
-    info.amount *= factor;
-    if(!statusDict.ContainsKey(statusType))
+    if(!statusFXDict.ContainsKey(statusType))
       ImplementGauge(DefaultStatusGaugePool.Instantiate(statusType, this));
     
-    statusDict[statusType].Add(info);
+    statusFXDict[statusType].Add(effectInfo, factor);
   }
 
   // Update is called once per frame
   private void Update()
   {
-    foreach (var gauge in statusList) 
+    foreach (var gauge in statusFXList) 
       gauge.Update();
   }
 
@@ -85,10 +90,15 @@ public class Character : MonoBehaviour
 
   private void ApplyDamage(DamageInfo info, float factor)
   {
-    health -= info.healthAmount * factor;
-    poise -= (info.poiseAmount + poiseDamageDebuff) * factor;
+    var healthAmount = info.healthAmount * factor;
+    health -= healthAmount;
+    var poiseAmount = (info.poiseAmount + poiseDamageDebuff) * factor;
+    poise -= poiseAmount;
     if (poise <= 0)
       PoiseBreak();
+
+    var appliedDamage = new DamageInfo(info.type, healthAmount, poiseAmount);
+    onAppliedDamage?.Invoke(appliedDamage);
   }
 
   private void PoiseBreak()
@@ -96,11 +106,11 @@ public class Character : MonoBehaviour
     poise = stats.maxPoise;
   }
 
-  public IReadOnlyList<BaseGaugeStatusFX> GetGauges() => statusList;
+  public IReadOnlyList<BaseGaugeStatusFX> GetStatusEffects() => statusFXList;
 
   public void ClearStatus(EnumStatusType statusType)
   {
-    if (statusDict.TryGetValue(statusType, out var statusFX))
+    if (statusFXDict.TryGetValue(statusType, out var statusFX))
     {
       statusFX.Clear();
     }

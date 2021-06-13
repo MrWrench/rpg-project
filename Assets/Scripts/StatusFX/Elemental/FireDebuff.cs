@@ -49,7 +49,7 @@ namespace StatusFX
 			if (!started)
 				return false;
 
-			var gauges = target.GetGauges();
+			var gauges = target.GetStatusEffects();
 			var count = gauges.Count;
 			
 			var electroStrength = 0f;
@@ -110,23 +110,18 @@ namespace StatusFX
 
 		private void ExplodeAOE(float totalDamage, float totalAmount, float totalStrength, int statusCount, float poiseDamage)
 		{
-			var colliders = Physics.OverlapSphere(target.transform.position, EXPLOSION_RADIUS);
 			var explosionDamage = totalDamage * EXPLOSION_DAMAGE_MULT;
 			var statusAmount = Mathf.Min(totalAmount * STATUS_SPREAD_MULT, 1);
 			var explosionStength = totalStrength / statusCount * EXPLOSION_STRENGTH_MULT;
 
-			if (colliders.Length > 0)
+			var victims = StatusEffectsQueries.FindFriendsInSphere(target, target.transform.position, EXPLOSION_RADIUS);
+
+			if (victims.Count > 0)
 			{
-				foreach (var collider in colliders)
+				foreach (var victim in victims)
 				{
-					var victim = collider.GetComponent<Character>();
-					if (victim == null || victim == target)
-						continue;
-
-					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, explosionDamage,
-						poiseDamage));
-
-					victim.ApplyStatus(EnumStatusType.FIRE, new AddStatusInfo(statusAmount, explosionDamage, explosionStength));
+					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, explosionDamage, poiseDamage));
+					victim.ApplyStatus(EnumStatusType.FIRE, new StatusEffectInfo(statusAmount, explosionDamage, explosionStength));
 				}
 			}
 		}
