@@ -65,10 +65,10 @@ namespace StatusFX.Elemental
 				var victimCount = victims.Count + 1; // Себя учитываем тоже
 				var dischargeSingleDamage = dischargeDamage / victimCount;
 
-				var appliedStatuses = target.GetStatusFX()
+				var appliedStatuses = target.statusFX.AsEnumerable()
 					.OfType<IGaugeStatusEffect?>()
-					.Where(x => x is {isStarted: true})
-					.Select(x => (statusType: x.type, statusStats:
+					.Where(x => x != null && x.isStarted)
+					.Select(x => (statusType: x!.type, statusStats:
 						new StatusEffectInfo(
 							Mathf.Min(STATUS_SPREAD_MAX, x.amount * STATUS_SPREAD_MULT * strength),
 							x.damage / victimCount,

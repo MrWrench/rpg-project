@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Debug;
-using JetBrains.Annotations;
 using StatusFX;
-using StatusFX.Generic;
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
@@ -11,6 +8,8 @@ using UnityEngine;
 public class Character : MonoBehaviour, ICombatUnit
 {
 	[SerializeField] public PersistentStats stats = new PersistentStats();
+
+	public IStatusCollection statusFX { get; } = new StatusCollection();
 
 	public EnumTeam team => _team;
 	[SerializeField] private EnumTeam _team;
@@ -27,57 +26,37 @@ public class Character : MonoBehaviour, ICombatUnit
 
 	public event IDamageable.ApplyDamageDelegate? onAppliedDamage;
 
-	private readonly List<IStatusEffect> statusFX = new List<IStatusEffect>();
-	private readonly Dictionary<EnumStatusType, IStatusEffect> statusFXDict = new Dictionary<EnumStatusType, IStatusEffect>();
-
 	private void Start()
 	{
 		health = stats.maxHealth;
 		poise = stats.maxPoise;
 		CharacterDebug.InvokeSpawn(this);
 	}
-
-	bool IStatusFXCarrier.HasStatusEffectImplemented(EnumStatusType statusType) => HasStatusEffectImplemented(statusType);
-	private bool HasStatusEffectImplemented(EnumStatusType statusType) => statusFXDict.ContainsKey(statusType); 
-
-	void IStatusFXCarrier.ImplementStatusEffect([NotNull] IStatusEffect statusEffect)
-	{
-		if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
-		if (HasStatusEffectImplemented(statusEffect.type)) throw new ArgumentException(nameof(statusEffect));
-
-		statusFX.Add(statusEffect);
-		statusFXDict.Add(statusEffect.type, statusEffect);
-		statusEffect.onStarted += OnStatusEffectStarted;
-		statusEffect.onStoped += OnStatusEffectStoped;
-	}
-
-	void IStatusFXCarrier.UnimplementStatusEffect([NotNull] IStatusEffect statusEffect)
-	{
-		if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
-		if (!HasStatusEffectImplemented(statusEffect.type)) throw new ArgumentException(nameof(statusEffect));
-
-		statusEffect.onStarted -= OnStatusEffectStarted;
-		statusEffect.onStoped -= OnStatusEffectStoped;
-		statusFX.Remove(statusEffect);
-		statusFXDict.Remove(statusEffect.type);
-	}
-
-	private void OnStatusEffectStarted(IStatusEffect statusEffect) => onStatusEffectStarted?.Invoke(statusEffect);
-	private void OnStatusEffectStoped(IStatusEffect statusEffect) => onStatusEffectStoped?.Invoke(statusEffect);
-
+	
 	public void ApplyStatus(EnumStatusType statusType, StatusEffectInfo effectInfo, float factor = 1)
 	{
 		if (factor <= 0) throw new ArgumentOutOfRangeException(nameof(factor));
 
-		if (!HasStatusEffectImplemented(statusType))
+		if (!statusFX.HasStatusEffectImplemented(statusType))
 		{
 			var newStatus = StatusEffect.GetDefault(statusType);
 			newStatus.LinkNewTarget(this);
 		}
 
-		if (!(GetStatusEffect(statusType) is IGaugeStatusEffect status))
+		if (!(statusFX.GetStatusEffect(statusType) is IGaugeStatusEffect status))
 			throw new InvalidOperationException($"Status of type {statusType} is not {nameof(IGaugeStatusEffect)}");
 		status.Add(effectInfo, factor);
+	}
+	
+	public void ClearStatus(EnumStatusType statusType)
+	{
+		if(!statusFX.HasStatusEffectImplemented(statusType))
+			return;
+    		
+		if (!(statusFX.GetStatusEffect(statusType) is IGaugeStatusEffect status))
+			throw new InvalidOperationException($"Status of type {statusType} is not {nameof(IGaugeStatusEffect)}");
+    		
+		status.Clear();
 	}
 
 	private void OnDestroy()
@@ -119,27 +98,6 @@ public class Character : MonoBehaviour, ICombatUnit
 	private void PoiseBreak()
 	{
 		poise = stats.maxPoise;
-	}
-
-	public event IStatusFXCarrier.StatusEffectChangeDelegate? onStatusEffectStarted;
-	public event IStatusFXCarrier.StatusEffectChangeDelegate? onStatusEffectStoped;
-
-	public void ClearStatus(EnumStatusType statusType)
-	{
-		if(!HasStatusEffectImplemented(statusType))
-			return;
-		
-		if (!(GetStatusEffect(statusType) is IGaugeStatusEffect status))
-			throw new InvalidOperationException($"Status of type {statusType} is not {nameof(IGaugeStatusEffect)}");
-		
-		status.Clear();
-	}
-
-	public IEnumerable<IStatusEffect> GetStatusFX() => statusFX;
-
-	public IReadOnlyStatusEffect GetStatusEffect(EnumStatusType type)
-	{
-		return HasStatusEffectImplemented(type) ? statusFXDict[type] : StatusEffect.GetEmpty(type);
 	}
 
 	public IObservable<Unit> GetUpdateObservable() => this.UpdateAsObservable();

@@ -6,7 +6,7 @@
 		event StartDelegate onStarted;
 
 		delegate void StopDelegate(IStatusEffect statusEffect);
-		event StopDelegate onStoped;
+		event StopDelegate onStopped;
 
 		void Start();
 		void Stop();

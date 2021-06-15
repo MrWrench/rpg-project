@@ -21,7 +21,7 @@ namespace StatusFX.Elemental
 		protected override void OnStart()
 		{
 			if (!TryExplode())
-				target.onStatusEffectStarted += OnStatusEffectStarted;
+				target.statusFX.onStatusEffectStarted += OnStatusEffectStarted;
 		}
 
 		protected override void OnUpdate()
@@ -34,7 +34,7 @@ namespace StatusFX.Elemental
 
 		protected override void OnStop()
 		{
-			target.onStatusEffectStarted -= OnStatusEffectStarted;
+			target.statusFX.onStatusEffectStarted -= OnStatusEffectStarted;
 		}
 
 		private void OnStatusEffectStarted(IStatusEffect statusEffect)
@@ -47,7 +47,7 @@ namespace StatusFX.Elemental
 			if (!isStarted)
 				return false;
 
-			var gauges = target.GetStatusFX().OfType<IGaugeStatusEffect>().ToArray();
+			var gauges = target.statusFX.AsEnumerable().OfType<IGaugeStatusEffect>().ToArray();
 			var count = gauges.Length;
 
 			var electroStrength = 0f;

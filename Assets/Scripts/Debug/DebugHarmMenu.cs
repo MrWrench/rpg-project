@@ -124,7 +124,7 @@ public class DebugHarmMenu : ExampleBase
 					GUILayout.FlexibleSpace();
 					GUILayout.Label("strength");
 				}
-				foreach (var gauge in target.GetStatusFX().OfType<IGaugeStatusEffect>())
+				foreach (var gauge in target.statusFX.AsEnumerable().OfType<IGaugeStatusEffect>())
 				{
 					using (new GUILayout.HorizontalScope())
 					{

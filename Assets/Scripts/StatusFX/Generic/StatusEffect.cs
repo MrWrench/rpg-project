@@ -10,9 +10,9 @@ namespace StatusFX.Generic
 		public bool isStarted { get; private set; }
 		public abstract bool isDebuff { get; }
 		public event IStatusEffect.StartDelegate? onStarted;
-		public event IStatusEffect.StopDelegate? onStoped;
+		public event IStatusEffect.StopDelegate? onStopped;
 
-		protected T target;
+		protected T target = default!;
 		private IDisposable? updateHandle;
 
 		protected virtual void Update()
@@ -35,7 +35,7 @@ namespace StatusFX.Generic
 		{
 			isStarted = false;
 			OnStop();
-			onStoped?.Invoke(this);
+			onStopped?.Invoke(this);
 		}
 		
 		protected virtual void OnStop() { }
@@ -53,14 +53,14 @@ namespace StatusFX.Generic
 			if (newTarget == null)
 				throw new ArgumentNullException(nameof(newTarget));
 
-			if (newTarget.HasStatusEffectImplemented(type))
+			if (newTarget.statusFX.HasStatusEffectImplemented(type))
 				throw new InvalidOperationException($"New target already has implemented {type}");
 
-			if (target?.HasStatusEffectImplemented(type) ?? false)
+			if (target?.statusFX.HasStatusEffectImplemented(type) ?? false)
 				UnlinkCurrentTarget();
 
 			target = newTarget;
-			target.ImplementStatusEffect(this);
+			target.statusFX.ImplementStatusEffect(this);
 			updateHandle = target.GetUpdateObservable().Subscribe(_ => Update());
 		}
 
@@ -70,8 +70,8 @@ namespace StatusFX.Generic
 			{
 				Stop();
 				updateHandle?.Dispose();
-				target.UnimplementStatusEffect(this);
-				target = default;
+				target.statusFX.UnimplementStatusEffect(this);
+				target = default!;
 			}
 		}
 	}
