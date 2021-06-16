@@ -5,49 +5,49 @@ namespace StatusFX
 {
 	public class StatusCollection : IStatusCollection
 	{
-		private readonly List<IStatusEffect> statusFX = new List<IStatusEffect>();
+		private readonly List<IStatusEffect> _statusFX = new List<IStatusEffect>();
 
-		private readonly Dictionary<EnumStatusType, IStatusEffect> statusFXDict =
-			new Dictionary<EnumStatusType, IStatusEffect>();
+		private readonly Dictionary<StatusEffectType, IStatusEffect> _statusFXDict =
+			new Dictionary<StatusEffectType, IStatusEffect>();
 
-		public event IStatusCollection.StatusEffectChangeDelegate? onStatusEffectStarted;
-		public event IStatusCollection.StatusEffectChangeDelegate? onStatusEffectStopped;
+		public event IStatusCollection.StatusEffectChangeDelegate OnStatusEffectStarted;
+		public event IStatusCollection.StatusEffectChangeDelegate OnStatusEffectStopped;
 
-		public IEnumerable<IStatusEffect> AsEnumerable() => statusFX;
+		public IEnumerable<IStatusEffect> AsEnumerable() => _statusFX;
 
-		public IReadOnlyStatusEffect GetStatusEffect(EnumStatusType type)
+		public IReadOnlyStatusEffect GetStatusEffect(StatusEffectType effectType)
 		{
-			return HasStatusEffectImplemented(type) ? statusFXDict[type] : StatusEffect.GetEmpty(type);
+			return HasStatusEffectImplemented(effectType) ? _statusFXDict[effectType] : StatusEffect.GetEmpty(effectType);
 		}
 
-		bool IStatusCollection.HasStatusEffectImplemented(EnumStatusType statusType) =>
-			HasStatusEffectImplemented(statusType);
+		bool IStatusCollection.HasStatusEffectImplemented(StatusEffectType statusEffectType) =>
+			HasStatusEffectImplemented(statusEffectType);
 
-		private bool HasStatusEffectImplemented(EnumStatusType statusType) => statusFXDict.ContainsKey(statusType);
+		private bool HasStatusEffectImplemented(StatusEffectType statusEffectType) => _statusFXDict.ContainsKey(statusEffectType);
 
 		void IStatusCollection.ImplementStatusEffect(IStatusEffect statusEffect)
 		{
 			if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
-			if (HasStatusEffectImplemented(statusEffect.type)) throw new ArgumentException(nameof(statusEffect));
+			if (HasStatusEffectImplemented(statusEffect.EffectType)) throw new ArgumentException(nameof(statusEffect));
 
-			statusFX.Add(statusEffect);
-			statusFXDict.Add(statusEffect.type, statusEffect);
-			statusEffect.onStarted += OnStatusEffectStarted;
-			statusEffect.onStopped += OnStatusEffectStopped;
+			_statusFX.Add(statusEffect);
+			_statusFXDict.Add(statusEffect.EffectType, statusEffect);
+			statusEffect.OnStarted += NotifyStatusEffectStarted;
+			statusEffect.OnStopped += NotifyStatusEffectStopped;
 		}
 
 		void IStatusCollection.UnimplementStatusEffect(IStatusEffect statusEffect)
 		{
 			if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
-			if (!HasStatusEffectImplemented(statusEffect.type)) throw new ArgumentException(nameof(statusEffect));
+			if (!HasStatusEffectImplemented(statusEffect.EffectType)) throw new ArgumentException(nameof(statusEffect));
 
-			statusEffect.onStarted -= OnStatusEffectStarted;
-			statusEffect.onStopped -= OnStatusEffectStopped;
-			statusFX.Remove(statusEffect);
-			statusFXDict.Remove(statusEffect.type);
+			statusEffect.OnStarted -= NotifyStatusEffectStarted;
+			statusEffect.OnStopped -= NotifyStatusEffectStopped;
+			_statusFX.Remove(statusEffect);
+			_statusFXDict.Remove(statusEffect.EffectType);
 		}
 
-		private void OnStatusEffectStarted(IStatusEffect statusEffect) => onStatusEffectStarted?.Invoke(statusEffect);
-		private void OnStatusEffectStopped(IStatusEffect statusEffect) => onStatusEffectStopped?.Invoke(statusEffect);
+		private void NotifyStatusEffectStarted(IStatusEffect statusEffect) => OnStatusEffectStarted?.Invoke(statusEffect);
+		private void NotifyStatusEffectStopped(IStatusEffect statusEffect) => OnStatusEffectStopped?.Invoke(statusEffect);
 	}
 }

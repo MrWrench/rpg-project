@@ -12,32 +12,32 @@ namespace GameDebug
 	{
 		private struct StatusInfoPrototype
 		{
-			public EnumStatusType type;
-			public float amount;
-			public float damage;
-			public float strength;
+			public StatusEffectType EffectType;
+			public float Amount;
+			public float Damage;
+			public float Strength;
 
 			public StatusEffectInfo ToStatusEffect()
 			{
-				return new StatusEffectInfo(amount, damage, strength);
+				return new StatusEffectInfo(Amount, Damage, Strength);
 			}
 		}
 	
 		private struct DamageInfoPrototype
 		{
-			public EnumDamageType type;
-			public float healthAmount;
-			public float poiseAmount;
+			public DamageType Type;
+			public float HealthAmount;
+			public float PoiseAmount;
 
 			public DamageInfo ToDamageInfo()
 			{
-				return new DamageInfo(type, healthAmount, poiseAmount);
+				return new DamageInfo(Type, HealthAmount, PoiseAmount);
 			}
 		}
 	
 		private Character[] _characters = null!;
 		private int _targetIndex;
-		private Character? _currentTarget;
+		private Character _currentTarget;
 		protected override string title => "Debug Status Menu";
 
 		#region Common
@@ -77,8 +77,8 @@ namespace GameDebug
 		
 			if (_currentTarget == null)
 				return;
-			GUILayout.Label($"Health: {_currentTarget.health:N1}", textAlign);
-			GUILayout.Label($"Poise: {_currentTarget.poise:N1}", textAlign);
+			GUILayout.Label($"Health: {_currentTarget.Health:N1}", textAlign);
+			GUILayout.Label($"Poise: {_currentTarget.Poise:N1}", textAlign);
 
 			DrawStatuses(_currentTarget);
 			DrawApplyStatus(_currentTarget);
@@ -109,8 +109,7 @@ namespace GameDebug
 			_statusesUnfolded = Fold.DoGUIHeader(_statusesUnfolded, "Statuses");
 			if (!_statusesUnfolded) return;
 
-			using (var scrollView =
-				new GUILayout.ScrollViewScope(_statusScrollPos))
+			using (var scrollView = new GUILayout.ScrollViewScope(_statusScrollPos))
 			{
 				_statusScrollPos = scrollView.scrollPosition;
 				using (new RGUI.IndentScope())
@@ -125,17 +124,17 @@ namespace GameDebug
 						GUILayout.FlexibleSpace();
 						GUILayout.Label("strength");
 					}
-					foreach (var gauge in target.statusFX.AsEnumerable().OfType<IGaugeStatusEffect>())
+					foreach (var gauge in target.StatusFX.AsEnumerable().OfType<IGaugeStatusEffect>())
 					{
 						using (new GUILayout.HorizontalScope())
 						{
-							GUILayout.Label(gauge.type.ToString());
+							GUILayout.Label(gauge.EffectType.ToString());
 							GUILayout.FlexibleSpace();
-							GUILayout.Label(gauge.amount.ToString("P"));
+							GUILayout.Label(gauge.Amount.ToString("P"));
 							GUILayout.FlexibleSpace();
-							GUILayout.Label(gauge.damage.ToString("N"));
+							GUILayout.Label(gauge.Damage.ToString("N"));
 							GUILayout.FlexibleSpace();
-							GUILayout.Label(gauge.strength.ToString("N"));
+							GUILayout.Label(gauge.Strength.ToString("N"));
 						}
 					}
 				}
@@ -154,17 +153,17 @@ namespace GameDebug
 
 			using (new RGUI.IndentScope())
 			{
-				_statusPrototype.type = RGUI.Field(_statusPrototype.type, "Status");
-				_statusPrototype.amount = RGUI.Slider(_statusPrototype.amount, 0f, 1f, "Amount");
-				_statusPrototype.damage = RGUI.Field(_statusPrototype.damage, "Damage");
-				_statusPrototype.strength = RGUI.Field(_statusPrototype.strength, "Strength");
+				_statusPrototype.EffectType = RGUI.Field(_statusPrototype.EffectType, "Status");
+				_statusPrototype.Amount = RGUI.Slider(_statusPrototype.Amount, 0f, 1f, "Amount");
+				_statusPrototype.Damage = RGUI.Field(_statusPrototype.Damage, "Damage");
+				_statusPrototype.Strength = RGUI.Field(_statusPrototype.Strength, "Strength");
 
 				using (new GUILayout.HorizontalScope())
 				{
 					if (GUILayout.Button("Add Status"))
-						target.ApplyStatus(_statusPrototype.type, _statusPrototype.ToStatusEffect());
+						target.ApplyStatus(_statusPrototype.EffectType, _statusPrototype.ToStatusEffect());
 					if (GUILayout.Button("Clear Status"))
-						target.ClearStatus(_statusPrototype.type);
+						target.ClearStatus(_statusPrototype.EffectType);
 				}
 			}
 		}

@@ -4,10 +4,10 @@ namespace GameDebug
 {
 	public static class CharacterDebug
 	{
-		public static event Action<Character>? OnSpawn;
-		public static event Action? OnDestroyed;
-		public static event Action<Character>? OnEnabled;
-		public static event Action<Character>? OnDisabled;
+		public static event Action<Character> OnSpawn;
+		public static event Action OnDestroyed;
+		public static event Action<Character> OnEnabled;
+		public static event Action<Character> OnDisabled;
 
 		public static void InvokeSpawn(Character character) => OnSpawn?.Invoke(character);
 

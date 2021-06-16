@@ -5,13 +5,13 @@ namespace StatusFX
   [AttributeUsage(AttributeTargets.Class, Inherited = false)]
   public sealed class DefaultStatusEffectAttribute : Attribute
   {
-    public readonly EnumStatusType type;
-    public readonly bool isDebuff;
+    public readonly StatusEffectType EffectType;
+    public readonly bool IsDebuff;
 
-    public DefaultStatusEffectAttribute(EnumStatusType type, bool isDebuff)
+    public DefaultStatusEffectAttribute(StatusEffectType effectType, bool isDebuff)
     {
-      this.type = type;
-      this.isDebuff = isDebuff;
+      this.EffectType = effectType;
+      this.IsDebuff = isDebuff;
     }
   }
 }

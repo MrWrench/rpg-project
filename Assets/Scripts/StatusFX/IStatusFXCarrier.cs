@@ -2,8 +2,8 @@
 {
 	public interface IStatusFXCarrier : IUpdateProvider
 	{
-		IStatusCollection statusFX { get; }
-		void ApplyStatus(EnumStatusType type, StatusEffectInfo info, float factor = 1);
-		void ClearStatus(EnumStatusType type);
+		IStatusCollection StatusFX { get; }
+		void ApplyStatus(StatusEffectType effectType, StatusEffectInfo info, float factor = 1);
+		void ClearStatus(StatusEffectType effectType);
 	}
 }

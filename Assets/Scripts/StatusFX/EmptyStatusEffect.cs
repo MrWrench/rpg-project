@@ -4,15 +4,15 @@ namespace StatusFX
 {
 	internal readonly struct EmptyStatusEffect : IReadOnlyStatusEffect
 	{
-		public bool isStarted => false;
-		public EnumStatusType type { get; }
-		public bool isDebuff { get; }
+		public bool IsStarted => false;
+		public StatusEffectType EffectType { get; }
+		public bool IsDebuff { get; }
 		
-		public EmptyStatusEffect(EnumStatusType type)
+		public EmptyStatusEffect(StatusEffectType effectType)
 		{
-			this.type = type;
-			isDebuff = DefaultStatusEffectPool.FindDefaultType(type)?.GetCustomAttribute<DefaultStatusEffectAttribute>()
-				.isDebuff ?? false;
+			this.EffectType = effectType;
+			IsDebuff = DefaultStatusEffectPool.FindDefaultType(effectType)?.GetCustomAttribute<DefaultStatusEffectAttribute>()
+				.IsDebuff ?? false;
 		}
 	}
 }

@@ -5,24 +5,24 @@ namespace GameDebug
 {
 	public class DebugMenu : MonoBehaviour
 	{
-		WindowLaunchers launchers = null!;
+		WindowLaunchers _launchers = null!;
 
 		public void Start()
 		{
 			// if WindowLaunchers.isWindow == true(default)
 			// WindowLaunchers will be wrapped in window.
 			// child windows automaticaly aligned.
-			launchers = new WindowLaunchers
+			_launchers = new WindowLaunchers
 			{
 				name = "Debug Menu"
 			};
             
-			launchers.Add("Debug Status Menu", typeof(DebugHarmMenu));
+			_launchers.Add("Debug Status Menu", typeof(DebugHarmMenu));
 		}
 	
 		void OnGUI()
 		{
-			launchers.DoGUI();
+			_launchers.DoGUI();
 		}
 	}
 }

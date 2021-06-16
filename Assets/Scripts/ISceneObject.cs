@@ -2,5 +2,5 @@
 
 public interface ISceneObject
 {
-	Transform transform { get; }
+	Transform GetTransform();
 }

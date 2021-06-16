@@ -4,16 +4,16 @@ using UniRx;
 
 namespace StatusFX.Generic
 {
-	public abstract class StatusEffect<T> : IStatusEffect<T> where T : IStatusFXCarrier?
+	public abstract class StatusEffect<T> : IStatusEffect<T> where T : IStatusFXCarrier
 	{
-		public abstract EnumStatusType type { get; }
-		public bool isStarted { get; private set; }
-		public abstract bool isDebuff { get; }
-		public event IStatusEffect.StartDelegate? onStarted;
-		public event IStatusEffect.StopDelegate? onStopped;
+		public abstract StatusEffectType EffectType { get; }
+		public bool IsStarted { get; private set; }
+		public abstract bool IsDebuff { get; }
+		public event IStatusEffect.StartDelegate OnStarted;
+		public event IStatusEffect.StopDelegate OnStopped;
 
-		protected T target = default!;
-		private IDisposable? updateHandle;
+		protected T Target;
+		private IDisposable _updateHandle;
 
 		protected virtual void Update()
 		{
@@ -24,18 +24,18 @@ namespace StatusFX.Generic
 
 		public virtual void Start()
 		{
-			isStarted = true;
+			IsStarted = true;
 			OnStart();
-			onStarted?.Invoke(this);
+			OnStarted?.Invoke(this);
 		}
 
 		protected virtual void OnStart() { }
 
 		public virtual void Stop()
 		{
-			isStarted = false;
+			IsStarted = false;
 			OnStop();
-			onStopped?.Invoke(this);
+			OnStopped?.Invoke(this);
 		}
 		
 		protected virtual void OnStop() { }
@@ -53,25 +53,25 @@ namespace StatusFX.Generic
 			if (newTarget == null)
 				throw new ArgumentNullException(nameof(newTarget));
 
-			if (newTarget.statusFX.HasStatusEffectImplemented(type))
-				throw new InvalidOperationException($"New target already has implemented {type}");
+			if (newTarget.StatusFX.HasStatusEffectImplemented(EffectType))
+				throw new InvalidOperationException($"New target already has implemented {EffectType}");
 
-			if (target?.statusFX.HasStatusEffectImplemented(type) ?? false)
+			if (Target?.StatusFX.HasStatusEffectImplemented(EffectType) ?? false)
 				UnlinkCurrentTarget();
 
-			target = newTarget;
-			target.statusFX.ImplementStatusEffect(this);
-			updateHandle = target.GetUpdateObservable().Subscribe(_ => Update());
+			Target = newTarget;
+			Target.StatusFX.ImplementStatusEffect(this);
+			_updateHandle = Target.GetUpdateObservable().Subscribe(_ => Update());
 		}
 
 		public void UnlinkCurrentTarget()
 		{
-			if (target != null)
+			if (Target != null)
 			{
 				Stop();
-				updateHandle?.Dispose();
-				target.statusFX.UnimplementStatusEffect(this);
-				target = default!;
+				_updateHandle?.Dispose();
+				Target.StatusFX.UnimplementStatusEffect(this);
+				Target = default!;
 			}
 		}
 	}

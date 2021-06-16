@@ -1,5 +1,5 @@
 ﻿public interface IStatsCarrier
 {
-	float debuffDurationMult { get; set; }
-	float poiseDamageDebuff { get; set; }
+	float DebuffDurationMult { get; set; }
+	float PoiseDamageDebuff { get; set; }
 }

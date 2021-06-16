@@ -2,8 +2,8 @@
 {
 	public interface IReadOnlyStatusEffect
 	{
-		EnumStatusType type { get; }
-		bool isStarted { get; }
-		bool isDebuff { get; }
+		StatusEffectType EffectType { get; }
+		bool IsStarted { get; }
+		bool IsDebuff { get; }
 	}
 }

@@ -4,37 +4,33 @@ using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(EnumStatusType.FIRE, true)]
+	[DefaultStatusEffect(StatusEffectType.Fire, true)]
 	internal sealed class FireDebuff : ElementalDebuff
 	{
-		private const float EXPLOSION_RADIUS = 5;
-		private const float STATUS_SPREAD_MULT = 0.4f;
-		private const float EXPLOSION_DAMAGE_MULT = 0.4f;
-		private const float EXPLOSION_STRENGTH_MULT = 0.4f;
-		private const float EXPLOSION_POISE_DAMAGE = 40;
-		private const float HYDRO_STRENGTH_MULT = 0.5f;
-
-		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
-
-		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
+		private const float ExplosionRadius = 5;
+		private const float StatusSpreadMult = 0.4f;
+		private const float ExplosionDamageMult = 0.4f;
+		private const float ExplosionStrengthMult = 0.4f;
+		private const float ExplosionPoiseDamage = 40;
+		private const float HydroStrengthMult = 0.5f;
 
 		protected override void OnStart()
 		{
 			if (!TryExplode())
-				target.statusFX.onStatusEffectStarted += OnStatusEffectStarted;
+				Target.StatusFX.OnStatusEffectStarted += OnStatusEffectStarted;
 		}
 
 		protected override void OnUpdate()
 		{
-			if (!isStarted)
+			if (!IsStarted)
 				return;
 
-			target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate), Time.deltaTime);
+			Target.TakeDamage(new DamageInfo(DamageType.Elemental, Damage * BaseDecayRate), Time.deltaTime);
 		}
 
 		protected override void OnStop()
 		{
-			target.statusFX.onStatusEffectStarted -= OnStatusEffectStarted;
+			Target.StatusFX.OnStatusEffectStarted -= OnStatusEffectStarted;
 		}
 
 		private void OnStatusEffectStarted(IStatusEffect statusEffect)
@@ -44,60 +40,60 @@ namespace StatusFX.Elemental
 
 		private bool TryExplode()
 		{
-			if (!isStarted)
+			if (!IsStarted)
 				return false;
 
-			var gauges = target.statusFX.AsEnumerable().OfType<IGaugeStatusEffect>().ToArray();
+			var gauges = Target.StatusFX.AsEnumerable().OfType<IGaugeStatusEffect>().ToArray();
 			var count = gauges.Length;
 
 			var electroStrength = 0f;
 			var cryoStrength = 0f;
 			var hydroStrength = 0f;
-			var totalAmount = amount;
-			var totalStrength = strength;
+			var totalAmount = Amount;
+			var totalStrength = Strength;
 			var statusCount = 1;
 
 			var totalDamage = 0f;
 			for (int i = 0; i < count; i++)
 			{
 				var status = gauges[i];
-				if (status.isStarted && status.type != type)
+				if (status.IsStarted && status.EffectType != EffectType)
 				{
-					totalDamage += status.damage * status.amount * strength;
-					totalStrength += status.strength;
-					totalAmount += status.amount;
+					totalDamage += status.Damage * status.Amount * Strength;
+					totalStrength += status.Strength;
+					totalAmount += status.Amount;
 					statusCount++;
 
-					switch (status.type)
+					switch (status.EffectType)
 					{
-						case EnumStatusType.ELECTRO:
-							electroStrength = status.strength;
+						case StatusEffectType.Electro:
+							electroStrength = status.Strength;
 							break;
-						case EnumStatusType.HYDRO:
-							hydroStrength = status.strength;
+						case StatusEffectType.Hydro:
+							hydroStrength = status.Strength;
 							break;
-						case EnumStatusType.CRYO:
-							cryoStrength = status.strength;
+						case StatusEffectType.Cryo:
+							cryoStrength = status.Strength;
 							break;
 					}
 				}
 			}
 
-			var poiseDamage = EXPLOSION_POISE_DAMAGE * cryoStrength;
+			var poiseDamage = ExplosionPoiseDamage * cryoStrength;
 
 			if (totalDamage > 0)
 			{
-				totalDamage += damage * amount * strength; // Прибавляем сам огонь
-				totalDamage += totalDamage * hydroStrength * HYDRO_STRENGTH_MULT; // Прибавляем бонус от воды
+				totalDamage += Damage * Amount * Strength; // Прибавляем сам огонь
+				totalDamage += totalDamage * hydroStrength * HydroStrengthMult; // Прибавляем бонус от воды
 
 				for (int i = 0; i < count; i++)
 					gauges[i].Clear();
 
-				target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, totalDamage, poiseDamage));
+				Target.TakeDamage(new DamageInfo(DamageType.Elemental, totalDamage, poiseDamage));
 
 				if (electroStrength > 0)
 				{
-					ExplodeAOE(totalDamage, totalAmount, totalStrength, statusCount, poiseDamage);
+					ExplodeAoe(totalDamage, totalAmount, totalStrength, statusCount, poiseDamage);
 				}
 
 				return true;
@@ -106,21 +102,21 @@ namespace StatusFX.Elemental
 			return false;
 		}
 
-		private void ExplodeAOE(float totalDamage, float totalAmount, float totalStrength, int statusCount,
+		private void ExplodeAoe(float totalDamage, float totalAmount, float totalStrength, int statusCount,
 			float poiseDamage)
 		{
-			var explosionDamage = totalDamage * EXPLOSION_DAMAGE_MULT;
-			var statusAmount = Mathf.Min(totalAmount * STATUS_SPREAD_MULT, 1);
-			var explosionStength = totalStrength / statusCount * EXPLOSION_STRENGTH_MULT;
+			var explosionDamage = totalDamage * ExplosionDamageMult;
+			var statusAmount = Mathf.Min(totalAmount * StatusSpreadMult, 1);
+			var explosionStength = totalStrength / statusCount * ExplosionStrengthMult;
 
-			var victims = StatusEffectsQueries.FindFriendsInSphere(target, target.transform.position, EXPLOSION_RADIUS);
+			var victims = StatusEffectsQueries.FindFriendsInSphere(Target, Target.GetTransform().position, ExplosionRadius);
 
 			if (victims.Count > 0)
 			{
 				foreach (var victim in victims)
 				{
-					victim.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, explosionDamage, poiseDamage));
-					victim.ApplyStatus(EnumStatusType.FIRE,
+					victim.TakeDamage(new DamageInfo(DamageType.Elemental, explosionDamage, poiseDamage));
+					victim.ApplyStatus(StatusEffectType.Fire,
 						new StatusEffectInfo(statusAmount, explosionDamage, explosionStength));
 				}
 			}

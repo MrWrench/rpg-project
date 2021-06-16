@@ -2,14 +2,14 @@
 {
 	public static class StatusEffect
 	{
-		public static IStatusEffect GetDefault(EnumStatusType requiredType)
+		public static IStatusEffect GetDefault(StatusEffectType requiredEffectType)
 		{
-			return DefaultStatusEffectPool.Instantiate(requiredType);
+			return DefaultStatusEffectPool.Instantiate(requiredEffectType);
 		}
 
-		public static IReadOnlyStatusEffect GetEmpty(EnumStatusType requiredType)
+		public static IReadOnlyStatusEffect GetEmpty(StatusEffectType requiredEffectType)
 		{
-			return new EmptyStatusEffect(requiredType);
+			return new EmptyStatusEffect(requiredEffectType);
 		}
 	}
 }

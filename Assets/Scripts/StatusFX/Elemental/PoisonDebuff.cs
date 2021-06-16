@@ -3,19 +3,15 @@ using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(EnumStatusType.POISON, true)]
+	[DefaultStatusEffect(StatusEffectType.Poison, true)]
 	internal sealed class PoisonDebuff : ElementalDebuff
 	{
-		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
-
-		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
-
 		protected override void OnUpdate()
 		{
-			if (!isStarted)
+			if (!IsStarted)
 				return;
 
-			target.TakeDamage(new DamageInfo(EnumDamageType.ELEMENTAL, damage * baseDecayRate), Time.deltaTime);
+			Target.TakeDamage(new DamageInfo(DamageType.Elemental, Damage * BaseDecayRate), Time.deltaTime);
 		}
 	}
 }

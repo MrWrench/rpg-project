@@ -3,10 +3,10 @@
 	public interface IStatusEffect : IReadOnlyStatusEffect
 	{
 		delegate void StartDelegate(IStatusEffect statusEffect);
-		event StartDelegate onStarted;
+		event StartDelegate OnStarted;
 
 		delegate void StopDelegate(IStatusEffect statusEffect);
-		event StopDelegate onStopped;
+		event StopDelegate OnStopped;
 
 		void Start();
 		void Stop();

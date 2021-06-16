@@ -2,27 +2,22 @@
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(EnumStatusType.HYDRO, true)]
+	[DefaultStatusEffect(StatusEffectType.Hydro, true)]
 	internal sealed class HydroDebuff : ElementalDebuff
 	{
-		private const float DEBUFF_AMOUNT = 0.5f;
-
-		public override EnumStatusType type => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().type;
-
-		public override bool isDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().isDebuff;
-
-		private float appliedAmount;
+		private const float DebuffAmount = 0.5f;
+		private float _appliedAmount;
 
 		protected override void OnStart()
 		{
-			appliedAmount = DEBUFF_AMOUNT * strength;
-			target.debuffDurationMult += appliedAmount;
+			_appliedAmount = DebuffAmount * Strength;
+			Target.DebuffDurationMult += _appliedAmount;
 		}
 
 		protected override void OnStop()
 		{
-			target.debuffDurationMult -= appliedAmount;
-			appliedAmount = 0;
+			Target.DebuffDurationMult -= _appliedAmount;
+			_appliedAmount = 0;
 		}
 	}
 }

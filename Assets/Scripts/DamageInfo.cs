@@ -2,18 +2,18 @@
 
 public readonly struct DamageInfo
 {
-	public readonly EnumDamageType type;
-	public readonly float healthAmount;
-	public readonly float poiseAmount;
+	public readonly DamageType Type;
+	public readonly float HealthAmount;
+	public readonly float PoiseAmount;
 
-	public DamageInfo(EnumDamageType type, float healthAmount, float poiseAmount = 0)
+	public DamageInfo(DamageType type, float healthAmount, float poiseAmount = 0)
 	{
 		if (healthAmount < 0) throw new ArgumentOutOfRangeException(nameof(healthAmount));
 		if (poiseAmount < 0) throw new ArgumentOutOfRangeException(nameof(poiseAmount));
 		if (healthAmount == 0 && poiseAmount == 0) throw new ArgumentOutOfRangeException($"{nameof(healthAmount)} or {nameof(poiseAmount)}");
 
-		this.type = type;
-		this.healthAmount = healthAmount;
-		this.poiseAmount = poiseAmount;
+		Type = type;
+		HealthAmount = healthAmount;
+		PoiseAmount = poiseAmount;
 	}
 }

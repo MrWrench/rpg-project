@@ -6,14 +6,14 @@ namespace StatusFX
 	{
 		delegate void StatusEffectChangeDelegate(IStatusEffect statusEffect);
 
-		event StatusEffectChangeDelegate onStatusEffectStarted;
-		event StatusEffectChangeDelegate onStatusEffectStopped;
+		event StatusEffectChangeDelegate OnStatusEffectStarted;
+		event StatusEffectChangeDelegate OnStatusEffectStopped;
 		
 		IEnumerable<IStatusEffect> AsEnumerable();
-		IReadOnlyStatusEffect GetStatusEffect(EnumStatusType type);
+		IReadOnlyStatusEffect GetStatusEffect(StatusEffectType effectType);
 
 		// Кажется я что-то делаю не так
-		internal bool HasStatusEffectImplemented(EnumStatusType statusType);
+		internal bool HasStatusEffectImplemented(StatusEffectType statusEffectType);
 		internal void ImplementStatusEffect(IStatusEffect statusEffect);
 		internal void UnimplementStatusEffect(IStatusEffect statusEffect);
 	}

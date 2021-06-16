@@ -6,39 +6,39 @@ namespace StatusFX.Generic
 	public abstract class GaugeStatusEffect<T> : StatusEffect<T>, IGaugeStatusEffect
 		where T : IStatusFXCarrier, IStatsCarrier, ISceneObject
 	{
-		public float amount { get; private set; }
-		public float strength { get; private set; }
-		public float damage { get; private set; }
-		public float baseDecayRate => 0.1f; // TODO: To config
+		public float Amount { get; private set; }
+		public float Strength { get; private set; }
+		public float Damage { get; private set; }
+		public float BaseDecayRate => 0.1f; // TODO: To config
 
-		protected float decayRate => baseDecayRate / (1 + target.debuffDurationMult);
+		protected float DecayRate => BaseDecayRate / (1 + Target.DebuffDurationMult);
 
 		public void Add(StatusEffectInfo effectInfo, float factor = 1)
 		{
-			if (effectInfo.amount > 1 || effectInfo.amount < 0)
-				throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.amount)}");
+			if (effectInfo.Amount > 1 || effectInfo.Amount < 0)
+				throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.Amount)}");
 
-			if (effectInfo.damage < 0)
-				throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.damage)}");
+			if (effectInfo.Damage < 0)
+				throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.Damage)}");
 
-			if (effectInfo.strength < 0)
-				throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.strength)}");
+			if (effectInfo.Strength < 0)
+				throw new ArgumentOutOfRangeException($"{nameof(effectInfo)}.{nameof(effectInfo.Strength)}");
 
 			if (factor <= 0)
 				throw new ArgumentOutOfRangeException(nameof(factor));
 
-			if (isStarted)
+			if (IsStarted)
 				return;
 
-			var addedAmount = Mathf.Min(1 - amount, effectInfo.amount * factor);
+			var addedAmount = Mathf.Min(1 - Amount, effectInfo.Amount * factor);
 			if (addedAmount > 0)
 			{
-				strength = (strength * amount + effectInfo.strength * addedAmount) / (amount + addedAmount);
-				damage = (damage * amount + effectInfo.damage * addedAmount) / (amount + addedAmount);
-				amount += addedAmount;
+				Strength = (Strength * Amount + effectInfo.Strength * addedAmount) / (Amount + addedAmount);
+				Damage = (Damage * Amount + effectInfo.Damage * addedAmount) / (Amount + addedAmount);
+				Amount += addedAmount;
 			}
 
-			if (amount >= 1)
+			if (Amount >= 1)
 				Start();
 		}
 
@@ -49,11 +49,11 @@ namespace StatusFX.Generic
 
 		protected sealed override void Update()
 		{
-			if (amount > 0)
+			if (Amount > 0)
 			{
-				amount -= decayRate * Time.deltaTime;
+				Amount -= DecayRate * Time.deltaTime;
 
-				if (amount <= 0)
+				if (Amount <= 0)
 				{
 					Stop();
 				}
@@ -64,19 +64,19 @@ namespace StatusFX.Generic
 
 		public sealed override void Start()
 		{
-			amount = 1;
+			Amount = 1;
 			base.Start();
 		}
 
 		public sealed override void Stop()
 		{
-			amount = 0;
+			Amount = 0;
 			base.Stop();
 		}
 
-		public static IReadOnlyGaugeStatusEffect GetEmpty(EnumStatusType requiredType)
+		public static IReadOnlyGaugeStatusEffect GetEmpty(StatusEffectType requiredEffectType)
 		{
-			return new EmptyGaugeStatusEffect(requiredType);
+			return new EmptyGaugeStatusEffect(requiredEffectType);
 		}
 	}
 }

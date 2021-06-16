@@ -2,8 +2,8 @@
 {
 	public interface IReadOnlyGaugeStatusEffect : IReadOnlyStatusEffect
 	{
-		float amount { get; }
-		float damage { get; }
-		float strength { get; }
+		float Amount { get; }
+		float Damage { get; }
+		float Strength { get; }
 	}
 }

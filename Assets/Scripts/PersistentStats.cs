@@ -3,6 +3,6 @@
 [Serializable]
 public class PersistentStats
 {
-  public float maxHealth = 100;
-  public float maxPoise = 100;
+  public float MaxHealth = 100;
+  public float MaxPoise = 100;
 }

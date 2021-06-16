@@ -7,54 +7,61 @@ using UnityEngine;
 
 public class Character : MonoBehaviour, ICombatUnit
 {
-	[SerializeField] public PersistentStats stats = new PersistentStats();
+	[SerializeField] public PersistentStats Stats = new PersistentStats();
 
-	public IStatusCollection statusFX { get; } = new StatusCollection();
+	public IStatusCollection StatusFX { get; } = new StatusCollection();
 
-	public EnumTeam team => _team;
-	[SerializeField] private EnumTeam _team;
+	public UnitTeam Team => _team;
+	[SerializeField] private UnitTeam _team;
 
 	#region Stats
 
-	public float health { get; private set; }
-	public float poise { get; private set; }
+	public float Health { get; private set; }
+	public float Poise { get; private set; }
 
-	public float debuffDurationMult { get; set; }
-	public float poiseDamageDebuff { get; set; }
+	public float DebuffDurationMult { get; set; }
+	public float PoiseDamageDebuff { get; set; }
 
 	#endregion
 
-	public event IDamageable.ApplyDamageDelegate? onAppliedDamage;
+	public event IDamageable.ApplyDamageDelegate OnAppliedDamage;
+
+	private Transform _transform;
+
+	private void Awake()
+	{
+		_transform = GetComponent<Transform>();
+	}
 
 	private void Start()
 	{
-		health = stats.maxHealth;
-		poise = stats.maxPoise;
+		Health = Stats.MaxHealth;
+		Poise = Stats.MaxPoise;
 		CharacterDebug.InvokeSpawn(this);
 	}
 	
-	public void ApplyStatus(EnumStatusType statusType, StatusEffectInfo effectInfo, float factor = 1)
+	public void ApplyStatus(StatusEffectType statusEffectType, StatusEffectInfo effectInfo, float factor = 1)
 	{
 		if (factor <= 0) throw new ArgumentOutOfRangeException(nameof(factor));
 
-		if (!statusFX.HasStatusEffectImplemented(statusType))
+		if (!StatusFX.HasStatusEffectImplemented(statusEffectType))
 		{
-			var newStatus = StatusEffect.GetDefault(statusType);
+			var newStatus = StatusEffect.GetDefault(statusEffectType);
 			newStatus.LinkNewTarget(this);
 		}
 
-		if (!(statusFX.GetStatusEffect(statusType) is IGaugeStatusEffect status))
-			throw new InvalidOperationException($"Status of type {statusType} is not {nameof(IGaugeStatusEffect)}");
+		if (!(StatusFX.GetStatusEffect(statusEffectType) is IGaugeStatusEffect status))
+			throw new InvalidOperationException($"Status of type {statusEffectType} is not {nameof(IGaugeStatusEffect)}");
 		status.Add(effectInfo, factor);
 	}
 	
-	public void ClearStatus(EnumStatusType statusType)
+	public void ClearStatus(StatusEffectType statusEffectType)
 	{
-		if(!statusFX.HasStatusEffectImplemented(statusType))
+		if(!StatusFX.HasStatusEffectImplemented(statusEffectType))
 			return;
     		
-		if (!(statusFX.GetStatusEffect(statusType) is IGaugeStatusEffect status))
-			throw new InvalidOperationException($"Status of type {statusType} is not {nameof(IGaugeStatusEffect)}");
+		if (!(StatusFX.GetStatusEffect(statusEffectType) is IGaugeStatusEffect status))
+			throw new InvalidOperationException($"Status of type {statusEffectType} is not {nameof(IGaugeStatusEffect)}");
     		
 		status.Clear();
 	}
@@ -74,31 +81,32 @@ public class Character : MonoBehaviour, ICombatUnit
 		CharacterDebug.InvokeDisabled(this);
 	}
 
-	public event IDamageable.TakeDamageDelegate? onTakeDamage;
+	public event IDamageable.TakeDamageDelegate OnTakeDamage;
 
 	public void TakeDamage(DamageInfo info, float factor = 1)
 	{
-		onTakeDamage?.Invoke(info, factor);
+		OnTakeDamage?.Invoke(info, factor);
 		ApplyDamage(info, factor);
 	}
 
 	private void ApplyDamage(DamageInfo info, float factor)
 	{
-		var healthAmount = info.healthAmount * factor;
-		health -= healthAmount;
-		var poiseAmount = (info.poiseAmount + poiseDamageDebuff) * factor;
-		poise -= poiseAmount;
-		if (poise <= 0)
+		var healthAmount = info.HealthAmount * factor;
+		Health -= healthAmount;
+		var poiseAmount = (info.PoiseAmount + PoiseDamageDebuff) * factor;
+		Poise -= poiseAmount;
+		if (Poise <= 0)
 			PoiseBreak();
 
-		var appliedDamage = new DamageInfo(info.type, healthAmount, poiseAmount);
-		onAppliedDamage?.Invoke(appliedDamage);
+		var appliedDamage = new DamageInfo(info.Type, healthAmount, poiseAmount);
+		OnAppliedDamage?.Invoke(appliedDamage);
 	}
 
 	private void PoiseBreak()
 	{
-		poise = stats.maxPoise;
+		Poise = Stats.MaxPoise;
 	}
 
 	public IObservable<Unit> GetUpdateObservable() => this.UpdateAsObservable();
+	public Transform GetTransform() => _transform;
 }

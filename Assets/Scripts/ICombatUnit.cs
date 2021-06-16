@@ -2,5 +2,5 @@
 
 public interface ICombatUnit : IDamageable, IStatusFXCarrier, ISceneObject, IStatsCarrier
 {
-	EnumTeam team { get; }
+	UnitTeam Team { get; }
 }

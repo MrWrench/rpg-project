@@ -20,7 +20,7 @@ namespace StatusFX
 				return Array.Empty<T>();
 
 			return colliders.Select(x => x.GetComponent<T>())
-				.Where(x => x != null && x.team == unit.team && !Equals(x, unit))
+				.Where(x => x != null && x.Team == unit.Team && !Equals(x, unit))
 				.ToArray();
 		}
 
@@ -36,7 +36,7 @@ namespace StatusFX
 				return Array.Empty<T>();
 
 			return colliders.Select(x => x.GetComponent<T>())
-				.Where(x => x != null && x.team != unit.team)
+				.Where(x => x != null && x.Team != unit.Team)
 				.ToArray();
 		}
 	}
