@@ -1,5 +1,5 @@
 using System;
-using Debug;
+using GameDebug;
 using StatusFX;
 using UniRx;
 using UniRx.Triggers;
