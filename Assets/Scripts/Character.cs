@@ -46,7 +46,7 @@ public class Character : MonoBehaviour, ICombatUnit
 
 		if (!StatusFX.HasStatusEffectImplemented(statusEffectType))
 		{
-			var newStatus = StatusEffect.GetDefault(statusEffectType);
+			var newStatus = StatusEffects.GetDefault(statusEffectType);
 			newStatus.LinkNewTarget(this);
 		}
 

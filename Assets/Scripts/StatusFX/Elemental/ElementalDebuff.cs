@@ -1,11 +1,11 @@
 ﻿using Reflection;
-using StatusFX.Generic;
 
 namespace StatusFX.Elemental
 {
-	public abstract class ElementalDebuff : GaugeStatusEffect<ICombatUnit>
+	public abstract class ElementalDebuff<TConfig> : GaugeStatusEffect<ICombatUnit, TConfig>
+		where TConfig : IGaugeStatusEffectConfig
 	{
-		public override StatusEffectType EffectType => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().EffectType;
-		public override bool IsDebuff => GetType().GetCustomAttribute<DefaultStatusEffectAttribute>().IsDebuff;
+		public override StatusEffectType EffectType => Config.EffectType;
+		public override bool IsDebuff => Config.IsDebuff;
 	}
 }

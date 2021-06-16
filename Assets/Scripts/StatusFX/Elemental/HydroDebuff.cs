@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+﻿using StatusFX.Elemental.Configs;
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(StatusEffectType.Hydro, true)]
-	internal sealed class HydroDebuff : ElementalDebuff
+	internal sealed class HydroDebuff : ElementalDebuff<HydroDebuffConfig>
 	{
-		private const float DebuffAmount = 0.5f;
+		private float DebuffAmount => Config.DebuffAmount;
 		private float _appliedAmount;
 
 		protected override void OnStart()

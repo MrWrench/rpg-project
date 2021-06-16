@@ -1,10 +1,9 @@
-﻿using System.Reflection;
+﻿using StatusFX.Elemental.Configs;
 using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(StatusEffectType.Poison, true)]
-	internal sealed class PoisonDebuff : ElementalDebuff
+	internal sealed class PoisonDebuff : ElementalDebuff<PoisonDebuffConfig>
 	{
 		protected override void OnUpdate()
 		{

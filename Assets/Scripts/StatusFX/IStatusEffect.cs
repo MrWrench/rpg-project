@@ -13,5 +13,7 @@
 
 		void LinkNewTarget(IStatusFXCarrier newTarget);
 		void UnlinkCurrentTarget();
+
+		internal void SetConfig(IStatusEffectConfig config);
 	}
 }

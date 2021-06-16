@@ -1,18 +1,17 @@
 ﻿using System.Linq;
-using System.Reflection;
+using StatusFX.Elemental.Configs;
 using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(StatusEffectType.Fire, true)]
-	internal sealed class FireDebuff : ElementalDebuff
+	internal sealed class FireDebuff : ElementalDebuff<FireDebuffConfig>
 	{
-		private const float ExplosionRadius = 5;
-		private const float StatusSpreadMult = 0.4f;
-		private const float ExplosionDamageMult = 0.4f;
-		private const float ExplosionStrengthMult = 0.4f;
-		private const float ExplosionPoiseDamage = 40;
-		private const float HydroStrengthMult = 0.5f;
+		private float ExplosionRadius => Config.ExplosionRadius;
+		private float StatusSpreadMult => Config.StatusSpreadMult;
+		private float ExplosionDamageMult => Config.ExplosionDamageMult;
+		private float ExplosionStrengthMult => Config.ExplosionStrengthMult;
+		private float ExplosionPoiseDamage => Config.ExplosionPoiseDamage;
+		private float HydroStrengthMult => Config.HydroStrengthMult;
 
 		protected override void OnStart()
 		{

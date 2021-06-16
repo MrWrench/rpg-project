@@ -17,7 +17,7 @@ namespace StatusFX
 
 		public IReadOnlyStatusEffect GetStatusEffect(StatusEffectType effectType)
 		{
-			return HasStatusEffectImplemented(effectType) ? _statusFXDict[effectType] : StatusEffect.GetEmpty(effectType);
+			return HasStatusEffectImplemented(effectType) ? _statusFXDict[effectType] : StatusEffects.GetEmpty(effectType);
 		}
 
 		bool IStatusCollection.HasStatusEffectImplemented(StatusEffectType statusEffectType) =>

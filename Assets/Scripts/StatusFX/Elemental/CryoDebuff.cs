@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+﻿using StatusFX.Elemental.Configs;
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(StatusEffectType.Cryo, true)]
-	internal sealed class CryoDebuff : ElementalDebuff
+	internal sealed class CryoDebuff : ElementalDebuff<CryoDebuffConfig>
 	{
-		private const float PoiseDebuff = 10;
+		private float PoiseDebuff => Config.PoiseDebuff;
 		private float _appliedAmount;
 
 		protected override void OnStart()

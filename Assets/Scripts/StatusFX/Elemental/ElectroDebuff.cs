@@ -1,21 +1,21 @@
 ﻿using System.Linq;
-using System.Reflection;
+using StatusFX.Elemental.Configs;
 using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	[DefaultStatusEffect(StatusEffectType.Electro, true)]
-	internal sealed class ElectroDebuff : ElementalDebuff
+	internal sealed class ElectroDebuff : ElementalDebuff<ElectroDebuffConfig>
 	{
 		// TODO: move to config
-		private const float MAXDischargeTime = 3;
-		private const float MINDischargeTime = 1;
-		private const float DischargeRadius = 5;
-		private const float DischargePoiseDamage = 10;
-		private const float DischargeDamageMult = 0.3f;
-		private const float DischargeAccumulatedDamageMult = 0.7f;
-		private const float StatusSpreadMult = 0.5f;
-		private const float StatusSpreadMAX = 0.7f;
+		private float MaxDischargeTime => Config.MaxDischargeTime;
+		private float MinDischargeTime => Config.MinDischargeTime;
+		private float DischargeRadius => Config.DischargeRadius;
+		private float DischargePoiseDamage => Config.DischargePoiseDamage;
+		private float DischargeDamageMult => Config.DischargeDamageMult;
+		private float DischargeAccumulatedDamageMult => Config.DischargeAccumulatedDamageMult;
+		private float StatusSpreadMult => Config.StatusSpreadMult;
+		private float StatusSpreadMax => Config.StatusSpreadMax;
+		
 		private float _accumulatedDamage;
 		private float _nextDischargeTime;
 
@@ -67,7 +67,7 @@ namespace StatusFX.Elemental
 					.Where(x => x.IsStarted)
 					.Select(x => (statusType: x!.EffectType, statusStats:
 						new StatusEffectInfo(
-							Mathf.Min(StatusSpreadMAX, x.Amount * StatusSpreadMult * Strength),
+							Mathf.Min(StatusSpreadMax, x.Amount * StatusSpreadMult * Strength),
 							x.Damage / victimCount,
 							x.Strength / victimCount))).ToList();
 
@@ -97,9 +97,9 @@ namespace StatusFX.Elemental
 			return Mathf.Min(calculatedDamage, maxDamage);
 		}
 
-		private static float GetNextDischargeTime()
+		private float GetNextDischargeTime()
 		{
-			return Time.time + Random.Range(MINDischargeTime, MAXDischargeTime);
+			return Time.time + Random.Range(MinDischargeTime, MaxDischargeTime);
 		}
 	}
 }

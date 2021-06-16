@@ -13,9 +13,8 @@ namespace StatusFX
 
 		public EmptyGaugeStatusEffect(StatusEffectType effectType)
 		{
-			this.EffectType = effectType;
-			IsDebuff = DefaultStatusEffectPool.FindDefaultType(effectType)?.GetCustomAttribute<DefaultStatusEffectAttribute>()
-				.IsDebuff ?? false;
+			EffectType = effectType;
+			IsDebuff = DefaultStatusEffectPool.FindDefaultConfig(effectType)?.IsDebuff ?? false;
 		}
 	}
 }

@@ -5,7 +5,7 @@ namespace GameDebug
 {
 	public class DebugMenu : MonoBehaviour
 	{
-		WindowLaunchers _launchers = null!;
+		private WindowLaunchers _launchers = null!;
 
 		public void Start()
 		{
@@ -19,8 +19,8 @@ namespace GameDebug
             
 			_launchers.Add("Debug Status Menu", typeof(DebugHarmMenu));
 		}
-	
-		void OnGUI()
+
+		private void OnGUI()
 		{
 			_launchers.DoGUI();
 		}

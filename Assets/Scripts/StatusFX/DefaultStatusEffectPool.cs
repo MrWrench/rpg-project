@@ -1,35 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace StatusFX
 {
   internal static class DefaultStatusEffectPool
   {
-    private static readonly Dictionary<StatusEffectType, Type> defaultStatusFX;
+    private static readonly Dictionary<StatusEffectType, IStatusEffectConfig> DefaultStatusFX;
 
     static DefaultStatusEffectPool()
     {
       var statusEffectType = typeof(IStatusEffect);
-      defaultStatusFX = statusEffectType.Assembly.GetTypes()
-        .Select(type => (attr: type.GetCustomAttribute<DefaultStatusEffectAttribute>(), type: type))
-        .Where(tuple => statusEffectType.IsAssignableFrom(tuple.type) && !tuple.type.IsAbstract && tuple.attr != null)
-        .ToDictionary(tuple => tuple.attr.EffectType, tuple => tuple.type);
+      DefaultStatusFX = StatusFXDefaults.instance.DefaultEffects.ToDictionary(x => x.EffectType, x => x);
     }
 
-    public static IStatusEffect Instantiate(StatusEffectType statusEffectType)
+    internal static IStatusEffect Instantiate(StatusEffectType statusEffectType)
     {
-      if (!defaultStatusFX.ContainsKey(statusEffectType))
+      if (!DefaultStatusFX.ContainsKey(statusEffectType))
         throw new ArgumentException($"Default status effect for type {statusEffectType} does not exist");
 
-      var type = defaultStatusFX[statusEffectType];
-      return (IStatusEffect) Activator.CreateInstance(type);
+      var config = DefaultStatusFX[statusEffectType];
+      return Instantiate(config);
     }
 
-    public static Type? FindDefaultType(StatusEffectType statusEffectType)
+    public static IStatusEffect Instantiate(IStatusEffectConfig config)
     {
-      return defaultStatusFX.TryGetValue(statusEffectType, out var result) ? result : null;
+      var type = config.StatusEffectClassType;
+      var statusEffect = (IStatusEffect) Activator.CreateInstance(type);
+      statusEffect.SetConfig(config);
+      return statusEffect;
+    }
+
+    public static IStatusEffectConfig FindDefaultConfig(StatusEffectType statusEffectType)
+    {
+      return DefaultStatusFX.TryGetValue(statusEffectType, out var result) ? result : null;
     }
   }
 }

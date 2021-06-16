@@ -1,18 +1,16 @@
 ﻿using System;
 using UnityEngine;
 
-namespace StatusFX.Generic
+namespace StatusFX
 {
-	public abstract class GaugeStatusEffect<T> : StatusEffect<T>, IGaugeStatusEffect
-		where T : IStatusFXCarrier, IStatsCarrier, ISceneObject
+	public abstract class GaugeStatusEffect<TTarget, TConfig> : StatusEffect<TTarget, TConfig>, IGaugeStatusEffect
+		where TTarget : IStatusFXCarrier, IStatsCarrier, ISceneObject where TConfig : IGaugeStatusEffectConfig
 	{
 		public float Amount { get; private set; }
 		public float Strength { get; private set; }
 		public float Damage { get; private set; }
 		public float BaseDecayRate => 0.1f; // TODO: To config
-
-		protected float DecayRate => BaseDecayRate / (1 + Target.DebuffDurationMult);
-
+		
 		public void Add(StatusEffectInfo effectInfo, float factor = 1)
 		{
 			if (effectInfo.Amount > 1 || effectInfo.Amount < 0)
@@ -51,7 +49,7 @@ namespace StatusFX.Generic
 		{
 			if (Amount > 0)
 			{
-				Amount -= DecayRate * Time.deltaTime;
+				Amount -= GetFinalDecayRate() * Time.deltaTime;
 
 				if (Amount <= 0)
 				{
@@ -77,6 +75,11 @@ namespace StatusFX.Generic
 		public static IReadOnlyGaugeStatusEffect GetEmpty(StatusEffectType requiredEffectType)
 		{
 			return new EmptyGaugeStatusEffect(requiredEffectType);
+		}
+		
+		protected float GetFinalDecayRate()
+		{
+			return BaseDecayRate / (1 + Target.DebuffDurationMult);
 		}
 	}
 }
