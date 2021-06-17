@@ -1,9 +1,8 @@
-﻿using StatusFX.Elemental.Configs;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	internal sealed class PoisonDebuff : ElementalDebuff<PoisonDebuffConfig>
+	internal sealed class PoisonDebuff : ElementalDebuff
 	{
 		protected override void OnUpdate()
 		{

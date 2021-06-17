@@ -3,14 +3,16 @@ using UnityEngine;
 
 namespace StatusFX
 {
-	public abstract class GaugeStatusEffect<TTarget, TConfig> : StatusEffect<TTarget, TConfig>, IGaugeStatusEffect
-		where TTarget : IStatusFXCarrier, IStatsCarrier, ISceneObject where TConfig : IGaugeStatusEffectConfig
+	public abstract class GaugeStatusEffect<TTarget> : StatusEffect<TTarget>, IGaugeStatusEffect
+		where TTarget : IStatusFXCarrier, IStatsCarrier, ISceneObject
 	{
 		public float Amount { get; private set; }
 		public float Strength { get; private set; }
 		public float Damage { get; private set; }
-		public float BaseDecayRate => 0.1f; // TODO: To config
-		
+
+		public float BaseDecayRate => _baseDecayRate;
+		[SerializeField] private float _baseDecayRate;
+
 		public void Add(StatusEffectInfo effectInfo, float factor = 1)
 		{
 			if (effectInfo.Amount > 1 || effectInfo.Amount < 0)

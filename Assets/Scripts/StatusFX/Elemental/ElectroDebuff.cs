@@ -1,20 +1,27 @@
 ﻿using System.Linq;
-using StatusFX.Elemental.Configs;
 using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	internal sealed class ElectroDebuff : ElementalDebuff<ElectroDebuffConfig>
+	internal sealed class ElectroDebuff : ElementalDebuff
 	{
-		// TODO: move to config
-		private float MaxDischargeTime => Config.MaxDischargeTime;
-		private float MinDischargeTime => Config.MinDischargeTime;
-		private float DischargeRadius => Config.DischargeRadius;
-		private float DischargePoiseDamage => Config.DischargePoiseDamage;
-		private float DischargeDamageMult => Config.DischargeDamageMult;
-		private float DischargeAccumulatedDamageMult => Config.DischargeAccumulatedDamageMult;
-		private float StatusSpreadMult => Config.StatusSpreadMult;
-		private float StatusSpreadMax => Config.StatusSpreadMax;
+		[SerializeField] private float _maxDischargeTime = 3;
+		[SerializeField] private float _minDischargeTime = 1;
+		[SerializeField] private float _dischargeRadius = 5;
+		[SerializeField] private float _dischargePoiseDamage = 10;
+		[SerializeField] private float _dischargeDamageMult = 0.3f;
+		[SerializeField] private float _dischargeAccumulatedDamageMult = 0.7f;
+		[SerializeField] private float _statusSpreadMult = 0.5f;
+		[SerializeField] private float _statusSpreadMax = 0.7f;
+
+		public float MaxDischargeTime => _maxDischargeTime;
+		public float MinDischargeTime => _minDischargeTime;
+		public float DischargeRadius => _dischargeRadius;
+		public float DischargePoiseDamage => _dischargePoiseDamage;
+		public float DischargeDamageMult => _dischargeDamageMult;
+		public float DischargeAccumulatedDamageMult => _dischargeAccumulatedDamageMult;
+		public float StatusSpreadMult => _statusSpreadMult;
+		public float StatusSpreadMax => _statusSpreadMax;
 		
 		private float _accumulatedDamage;
 		private float _nextDischargeTime;

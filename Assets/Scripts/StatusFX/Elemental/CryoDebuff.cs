@@ -1,10 +1,12 @@
-﻿using StatusFX.Elemental.Configs;
+﻿using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	internal sealed class CryoDebuff : ElementalDebuff<CryoDebuffConfig>
+	internal sealed class CryoDebuff : ElementalDebuff
 	{
-		private float PoiseDebuff => Config.PoiseDebuff;
+		public float PoiseDebuff => _poiseDebuff;
+		
+		[SerializeField] private float _poiseDebuff = 10;
 		private float _appliedAmount;
 
 		protected override void OnStart()

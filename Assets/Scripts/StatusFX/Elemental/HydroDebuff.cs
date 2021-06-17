@@ -1,10 +1,12 @@
-﻿using StatusFX.Elemental.Configs;
+﻿using UnityEngine;
 
 namespace StatusFX.Elemental
 {
-	internal sealed class HydroDebuff : ElementalDebuff<HydroDebuffConfig>
+	internal sealed class HydroDebuff : ElementalDebuff
 	{
-		private float DebuffAmount => Config.DebuffAmount;
+		[SerializeField] private float _debuffAmount = 0.5f;
+
+		public float DebuffAmount => _debuffAmount;
 		private float _appliedAmount;
 
 		protected override void OnStart()
