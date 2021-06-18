@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace StatusFX.Elemental
 {
+	[CreateAssetMenu(fileName = "Fire Debuff", menuName = "StatusFX/Fire Debuff", order = 2)]
 	internal sealed class FireDebuff : ElementalDebuff
 	{
 		[SerializeField] private float _explosionRadius = 5;

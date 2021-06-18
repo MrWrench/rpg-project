@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9b660ba4aa546ffba8f99edf40aac1d, type: 3}
+  m_Name: StatusFX
+  m_EditorClassIdentifier: 
+  _defaultEffects:
+  - {fileID: 11400000, guid: 080374ef45ea1ab40893e2169bb99741, type: 2}
+  - {fileID: 11400000, guid: 433175ff8f4449e428c0f7d5851dd9f2, type: 2}
+  - {fileID: 11400000, guid: da61ad22070d8184aa3826fb58b5ec8b, type: 2}
+  - {fileID: 11400000, guid: 6da50e18f1198494482912ae6f7c8b1d, type: 2}
+  - {fileID: 11400000, guid: 7418f215174254b4f9f7e156b63e3b95, type: 2}

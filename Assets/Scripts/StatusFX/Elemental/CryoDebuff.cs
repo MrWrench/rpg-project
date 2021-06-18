@@ -2,6 +2,7 @@
 
 namespace StatusFX.Elemental
 {
+	[CreateAssetMenu(fileName = "Cryo Debuff", menuName = "StatusFX/Cryo Debuff", order = 2)]
 	internal sealed class CryoDebuff : ElementalDebuff
 	{
 		public float PoiseDebuff => _poiseDebuff;

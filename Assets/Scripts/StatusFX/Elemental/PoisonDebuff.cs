@@ -2,6 +2,7 @@
 
 namespace StatusFX.Elemental
 {
+	[CreateAssetMenu(fileName = "Poison Debuff", menuName = "StatusFX/Poison Debuff", order = 2)]
 	internal sealed class PoisonDebuff : ElementalDebuff
 	{
 		protected override void OnUpdate()

@@ -5,6 +5,7 @@ using UnityEngine;
 namespace StatusFX
 {
 	[FilePath("Configs/StatusFX.asset", FilePathAttribute.Location.PreferencesFolder)]
+	[CreateAssetMenu(fileName = "StatusFX", menuName = "StatusFX/StatusFXDefaults", order = 1)]
 	public class StatusFXDefaults : ScriptableSingleton<StatusFXDefaults>
 	{
 		public IEnumerable<StatusEffect> DefaultEffects => _defaultEffects;

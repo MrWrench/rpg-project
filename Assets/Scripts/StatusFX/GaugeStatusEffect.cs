@@ -11,7 +11,7 @@ namespace StatusFX
 		public float Damage { get; private set; }
 
 		public float BaseDecayRate => _baseDecayRate;
-		[SerializeField] private float _baseDecayRate;
+		[SerializeField] private float _baseDecayRate = 0.1f;
 
 		public void Add(StatusEffectInfo effectInfo, float factor = 1)
 		{

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace StatusFX.Elemental
 {
+	[CreateAssetMenu(fileName = "Electro Debuff", menuName = "StatusFX/Electro Debuff", order = 2)]
 	internal sealed class ElectroDebuff : ElementalDebuff
 	{
 		[SerializeField] private float _maxDischargeTime = 3;
