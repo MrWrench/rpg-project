@@ -1,4 +1,6 @@
-﻿namespace StatusFX
+﻿using System;
+
+namespace StatusFX
 {
 	public interface IStatusFXCarrier : IUpdateProvider
 	{
@@ -8,5 +10,7 @@
 		
 		void ImplementStatusEffect(IStatusEffect statusEffect);
 		void ReimplementStatusEffect(IStatusEffect statusEffect);
+
+		IObservable<IStatusEffect> StatusEffectImplementedAsObservable();
 	}
 }

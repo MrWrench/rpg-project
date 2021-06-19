@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using UniRx;
 using UnityEngine;
 
 namespace StatusFX.Elemental
 {
 	[CreateAssetMenu(fileName = "Fire Debuff", menuName = "StatusFX/Fire Debuff", order = 2)]
-	internal sealed class FireDebuff : ElementalDebuff
+	internal sealed class FireDebuff : ElementalDebuff, ISpecialEventStatusEffect<Unit>
 	{
 		[SerializeField] private float _explosionRadius = 5;
 		[SerializeField] private float _statusSpreadMult = 0.4f;
@@ -13,12 +15,14 @@ namespace StatusFX.Elemental
 		[SerializeField] private float _explosionPoiseDamage = 40;
 		[SerializeField] private float _hydroStrengthMult = 0.5f;
 
-		public float ExplosionRadius => _explosionRadius;
-		public float StatusSpreadMult => _statusSpreadMult;
-		public float ExplosionDamageMult => _explosionDamageMult;
-		public float ExplosionStrengthMult => _explosionStrengthMult;
-		public float ExplosionPoiseDamage => _explosionPoiseDamage;
-		public float HydroStrengthMult => _hydroStrengthMult;
+		private float ExplosionRadius => _explosionRadius;
+		private float StatusSpreadMult => _statusSpreadMult;
+		private float ExplosionDamageMult => _explosionDamageMult;
+		private float ExplosionStrengthMult => _explosionStrengthMult;
+		private float ExplosionPoiseDamage => _explosionPoiseDamage;
+		private float HydroStrengthMult => _hydroStrengthMult;
+
+		private readonly Subject<Unit> _onSpecialEvent = new Subject<Unit>();
 
 		protected override void OnStart()
 		{
@@ -126,6 +130,11 @@ namespace StatusFX.Elemental
 						new StatusEffectInfo(statusAmount, explosionDamage, explosionStength));
 				}
 			}
+		}
+
+		public IObservable<Unit> OnSpecialEventAsObservable()
+		{
+			return _onSpecialEvent;
 		}
 	}
 }

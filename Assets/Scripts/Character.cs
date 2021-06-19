@@ -28,6 +28,7 @@ public class Character : MonoBehaviour, ICombatUnit
 	public event IDamageable.ApplyDamageDelegate OnAppliedDamage;
 
 	private Transform _transform;
+	private readonly Subject<IStatusEffect> _onStatusEffectImplementedAsObservable = new Subject<IStatusEffect>();
 
 	private void Awake()
 	{
@@ -91,6 +92,11 @@ public class Character : MonoBehaviour, ICombatUnit
 		if (existingStatusEffect != null) 
 			UnimplementStatusEffect(existingStatusEffect);
 		ImplementStatusEffect(statusEffect);
+	}
+
+	public IObservable<IStatusEffect> StatusEffectImplementedAsObservable()
+	{
+		return _onStatusEffectImplementedAsObservable;
 	}
 
 	private void OnDestroy()
