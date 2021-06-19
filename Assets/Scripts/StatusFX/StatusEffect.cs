@@ -15,8 +15,8 @@ namespace StatusFX
 		[SerializeField] private bool _isDebuff;
 		[SerializeField] private StatusEffectType _effectType;
 
-		public abstract event IStatusEffect.StartDelegate OnStarted;
-		public abstract event IStatusEffect.StopDelegate OnStopped;
+		public abstract event IStatusEffect.StateChangeDelegate OnStarted;
+		public abstract event IStatusEffect.StateChangeDelegate OnStopped;
 		public abstract void Start();
 		public abstract void Stop();
 		public abstract void LinkNewTarget(IStatusFXCarrier newTarget);
@@ -32,8 +32,8 @@ namespace StatusFX
 	{
 		public override bool IsStarted => _isStarted;
 
-		public override event IStatusEffect.StartDelegate OnStarted;
-		public override event IStatusEffect.StopDelegate OnStopped;
+		public override event IStatusEffect.StateChangeDelegate OnStarted;
+		public override event IStatusEffect.StateChangeDelegate OnStopped;
 		
 		protected TTarget Target;
 		private IDisposable _updateHandle;
@@ -50,7 +50,6 @@ namespace StatusFX
 		{
 			_isStarted = true;
 			OnStart();
-			OnStarted?.Invoke(this);
 		}
 
 		protected virtual void OnStart() { }
@@ -59,7 +58,6 @@ namespace StatusFX
 		{
 			_isStarted = false;
 			OnStop();
-			OnStopped?.Invoke(this);
 		}
 		
 		protected virtual void OnStop() { }
@@ -84,7 +82,6 @@ namespace StatusFX
 				UnlinkCurrentTarget();
 
 			Target = newTarget;
-			Target.StatusFX.ImplementStatusEffect(this);
 			_updateHandle = Target.GetUpdateObservable().Subscribe(_ => Update());
 		}
 
@@ -94,7 +91,6 @@ namespace StatusFX
 			{
 				Stop();
 				_updateHandle?.Dispose();
-				Target.StatusFX.UnimplementStatusEffect(this);
 				Target = default!;
 			}
 		}

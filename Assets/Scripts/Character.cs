@@ -1,5 +1,6 @@
 using System;
 using GameDebug;
+using JetBrains.Annotations;
 using StatusFX;
 using UniRx;
 using UniRx.Triggers;
@@ -40,30 +41,56 @@ public class Character : MonoBehaviour, ICombatUnit
 		CharacterDebug.InvokeSpawn(this);
 	}
 	
-	public void ApplyStatus(StatusEffectType statusEffectType, StatusEffectInfo effectInfo, float factor = 1)
+	public void ApplyStatusEffect(StatusEffectType statusEffectType, StatusEffectInfo effectInfo, float factor = 1)
 	{
 		if (factor <= 0) throw new ArgumentOutOfRangeException(nameof(factor));
 
 		if (!StatusFX.HasStatusEffectImplemented(statusEffectType))
 		{
 			var newStatus = StatusEffects.GetDefault(statusEffectType);
-			newStatus.LinkNewTarget(this);
+			ImplementStatusEffect(newStatus);
 		}
 
-		if (!(StatusFX.GetStatusEffect(statusEffectType) is IGaugeStatusEffect status))
+		if (!(StatusFX.GetStatusEffectInfo(statusEffectType) is IGaugeStatusEffect status))
 			throw new InvalidOperationException($"Status of type {statusEffectType} is not {nameof(IGaugeStatusEffect)}");
 		status.Add(effectInfo, factor);
 	}
 	
-	public void ClearStatus(StatusEffectType statusEffectType)
+	public void ClearStatusEffect(StatusEffectType statusEffectType)
 	{
 		if(!StatusFX.HasStatusEffectImplemented(statusEffectType))
 			return;
     		
-		if (!(StatusFX.GetStatusEffect(statusEffectType) is IGaugeStatusEffect status))
+		if (!(StatusFX.GetStatusEffectInfo(statusEffectType) is IGaugeStatusEffect status))
 			throw new InvalidOperationException($"Status of type {statusEffectType} is not {nameof(IGaugeStatusEffect)}");
     		
 		status.Clear();
+	}
+
+	public void ImplementStatusEffect([NotNull] IStatusEffect statusEffect)
+	{
+		if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
+		if(StatusFX.HasStatusEffectImplemented(statusEffect.EffectType)) throw new ArgumentException(nameof(statusEffect));
+		
+		StatusFX.AddStatusEffect(statusEffect);
+		statusEffect.LinkNewTarget(this);
+	}
+
+	private void UnimplementStatusEffect([NotNull] IStatusEffect statusEffect)
+	{
+		if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
+		if(!StatusFX.HasStatusEffectImplemented(statusEffect.EffectType)) throw new ArgumentException(nameof(statusEffect));
+		StatusFX.RemoveStatusEffect(statusEffect);
+		statusEffect.UnlinkCurrentTarget();
+	}
+
+	public void ReimplementStatusEffect([NotNull] IStatusEffect statusEffect)
+	{
+		if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
+		var existingStatusEffect = StatusFX.FindStatusEffect(statusEffect.EffectType);
+		if (existingStatusEffect != null) 
+			UnimplementStatusEffect(existingStatusEffect);
+		ImplementStatusEffect(statusEffect);
 	}
 
 	private void OnDestroy()

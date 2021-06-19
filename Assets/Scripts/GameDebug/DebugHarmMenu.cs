@@ -161,9 +161,9 @@ namespace GameDebug
 				using (new GUILayout.HorizontalScope())
 				{
 					if (GUILayout.Button("Add Status"))
-						target.ApplyStatus(_statusPrototype.EffectType, _statusPrototype.ToStatusEffect());
+						target.ApplyStatusEffect(_statusPrototype.EffectType, _statusPrototype.ToStatusEffect());
 					if (GUILayout.Button("Clear Status"))
-						target.ClearStatus(_statusPrototype.EffectType);
+						target.ClearStatusEffect(_statusPrototype.EffectType);
 				}
 			}
 		}

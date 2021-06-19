@@ -122,7 +122,7 @@ namespace StatusFX.Elemental
 				foreach (var victim in victims)
 				{
 					victim.TakeDamage(new DamageInfo(DamageType.Elemental, explosionDamage, poiseDamage));
-					victim.ApplyStatus(StatusEffectType.Fire,
+					victim.ApplyStatusEffect(StatusEffectType.Fire,
 						new StatusEffectInfo(statusAmount, explosionDamage, explosionStength));
 				}
 			}

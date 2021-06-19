@@ -15,9 +15,14 @@ namespace StatusFX
 
 		public IEnumerable<IStatusEffect> AsEnumerable() => _statusFX;
 
-		public IReadOnlyStatusEffect GetStatusEffect(StatusEffectType effectType)
+		public IReadOnlyStatusEffect GetStatusEffectInfo(StatusEffectType effectType)
 		{
 			return HasStatusEffectImplemented(effectType) ? _statusFXDict[effectType] : StatusEffects.GetEmpty(effectType);
+		}
+
+		public IStatusEffect FindStatusEffect(StatusEffectType effectType)
+		{
+			return HasStatusEffectImplemented(effectType) ? _statusFXDict[effectType] : null;
 		}
 
 		bool IStatusCollection.HasStatusEffectImplemented(StatusEffectType statusEffectType) =>
@@ -25,7 +30,7 @@ namespace StatusFX
 
 		private bool HasStatusEffectImplemented(StatusEffectType statusEffectType) => _statusFXDict.ContainsKey(statusEffectType);
 
-		void IStatusCollection.ImplementStatusEffect(IStatusEffect statusEffect)
+		void IStatusCollection.AddStatusEffect(IStatusEffect statusEffect)
 		{
 			if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
 			if (HasStatusEffectImplemented(statusEffect.EffectType)) throw new ArgumentException(nameof(statusEffect));
@@ -36,7 +41,7 @@ namespace StatusFX
 			statusEffect.OnStopped += NotifyStatusEffectStopped;
 		}
 
-		void IStatusCollection.UnimplementStatusEffect(IStatusEffect statusEffect)
+		void IStatusCollection.RemoveStatusEffect(IStatusEffect statusEffect)
 		{
 			if (statusEffect == null) throw new ArgumentNullException(nameof(statusEffect));
 			if (!HasStatusEffectImplemented(statusEffect.EffectType)) throw new ArgumentException(nameof(statusEffect));

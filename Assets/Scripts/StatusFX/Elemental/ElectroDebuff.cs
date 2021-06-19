@@ -85,7 +85,7 @@ namespace StatusFX.Elemental
 						dischargePoiseDamage));
 
 					foreach (var statusInfo in appliedStatuses)
-						victim.ApplyStatus(statusInfo.statusType, statusInfo.statusStats);
+						victim.ApplyStatusEffect(statusInfo.statusType, statusInfo.statusStats);
 				}
 			}
 

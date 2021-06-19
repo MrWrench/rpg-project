@@ -3,7 +3,10 @@
 	public interface IStatusFXCarrier : IUpdateProvider
 	{
 		IStatusCollection StatusFX { get; }
-		void ApplyStatus(StatusEffectType effectType, StatusEffectInfo info, float factor = 1);
-		void ClearStatus(StatusEffectType effectType);
+		void ApplyStatusEffect(StatusEffectType effectType, StatusEffectInfo info, float factor = 1);
+		void ClearStatusEffect(StatusEffectType effectType);
+		
+		void ImplementStatusEffect(IStatusEffect statusEffect);
+		void ReimplementStatusEffect(IStatusEffect statusEffect);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StatusFX
 {
@@ -10,11 +11,11 @@ namespace StatusFX
 		event StatusEffectChangeDelegate OnStatusEffectStopped;
 		
 		IEnumerable<IStatusEffect> AsEnumerable();
-		IReadOnlyStatusEffect GetStatusEffect(StatusEffectType effectType);
+		IReadOnlyStatusEffect GetStatusEffectInfo(StatusEffectType effectType);
+		IStatusEffect FindStatusEffect(StatusEffectType effectType);
 
-		// Кажется я что-то делаю не так
-		internal bool HasStatusEffectImplemented(StatusEffectType statusEffectType);
-		internal void ImplementStatusEffect(IStatusEffect statusEffect);
-		internal void UnimplementStatusEffect(IStatusEffect statusEffect);
+		bool HasStatusEffectImplemented(StatusEffectType statusEffectType);
+		void AddStatusEffect(IStatusEffect statusEffect);
+		void RemoveStatusEffect(IStatusEffect statusEffect);
 	}
 }
