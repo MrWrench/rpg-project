@@ -1,6 +1,6 @@
 ﻿namespace Wrenge.StatusFX
 {
-	public class StatusComponent
+	public abstract class StatusComponent
 	{
 		public bool IsActive { get; set; }
 		protected StatusEffect Owner { get; private set; }
