@@ -17,7 +17,7 @@ namespace GameDebug
 				name = "Debug Menu"
 			};
             
-			_launchers.Add("Debug Status Menu", typeof(DebugHarmMenu));
+			// _launchers.Add("Debug Status Menu", typeof(DebugHarmMenu));
 		}
 
 		private void OnGUI()
