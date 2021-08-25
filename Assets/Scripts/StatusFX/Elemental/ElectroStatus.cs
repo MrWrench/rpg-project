@@ -8,7 +8,7 @@ namespace StatusFX.Elemental
 		private static int DischargeRadius => 1;
 		private static float DischargeDamageMult => 0.3f;
 		
-		public ElectroStatus()
+		public ElectroStatus(Character target) : base(target)
 		{
 			Tag = StatusTag.Electro;
 			AddComponent(new ElectroComponent

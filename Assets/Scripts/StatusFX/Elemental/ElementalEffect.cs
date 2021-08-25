@@ -6,7 +6,7 @@ namespace StatusFX.Elemental
 	{
 		private static float BaseDecayRate => 0.3f;
 		
-		public ElementalEffect()
+		public ElementalEffect(Character target) : base(target)
 		{
 			AddComponent(new AccumulationComponent() {BaseDecayRate = BaseDecayRate});
 			AddComponent(new ExpirationComponent() {Duration = 3});

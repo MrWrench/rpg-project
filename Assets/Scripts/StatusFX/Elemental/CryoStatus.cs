@@ -6,7 +6,7 @@ namespace StatusFX.Elemental
 	{
 		private int DebuffPerStack => 10;
 		
-		public CryoStatus()
+		public CryoStatus(Character target) : base(target)
 		{
 			Tag = StatusTag.Cryo;
 			AddComponent(new CryoComponent {DebuffPerStack = DebuffPerStack});

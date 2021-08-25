@@ -6,7 +6,7 @@ namespace StatusFX.Elemental
 	{
 		private float DebuffPerStack => 0.3f;
 
-		public HydroStatus()
+		public HydroStatus(Character target) : base(target)
 		{
 			Tag = StatusTag.Hydro;
 			AddComponent(new HydroComponent() {DebuffPerStack = DebuffPerStack});

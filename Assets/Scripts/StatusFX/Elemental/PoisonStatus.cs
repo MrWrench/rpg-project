@@ -6,7 +6,7 @@ namespace StatusFX.Elemental
 	{
 		private float DamagePercent => 0.3f;
 
-		public PoisonStatus()
+		public PoisonStatus(Character target) : base(target)
 		{
 			Tag = StatusTag.Poison;
 			

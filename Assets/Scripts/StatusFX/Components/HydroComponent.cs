@@ -7,7 +7,8 @@
 		
 		protected override void OnAdded()
 		{
-			NotifyStacksChanged(Owner.CurrentStacks);
+			if(Owner.CurrentStacks > 0)
+				NotifyStacksChanged(Owner.CurrentStacks);
 		}
 
 		protected override void OnStacksChanged(int deltaStacks)

@@ -6,7 +6,7 @@ namespace StatusFX.Elemental
 	{
 		private float DamagePercent => 0.3f;
 
-		public FireStatus()
+		public FireStatus(Character target) : base(target)
 		{
 			Tag = StatusTag.Fire;
 			
