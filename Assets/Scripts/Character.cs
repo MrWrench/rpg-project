@@ -6,6 +6,7 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
 	[SerializeField] public Stats Stats = new Stats();
+	public UnitTeam Team { get; set; }
 	public readonly StatusEffects _statusEffects = new StatusEffects();
 	public event Action<DamageInfo> OnDamageTaken; 
 

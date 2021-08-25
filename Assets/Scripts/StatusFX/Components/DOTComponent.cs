@@ -2,11 +2,13 @@
 {
 	public class DOTComponent : StatusComponent
 	{
-		public float DamageAmount { get; set; }
+		public float DamagePercentage { get; set; }
+		public DamageType DamageType { get; set; } = DamageType.Elemental;
 
 		public override void Tick()
 		{
-			Owner.Target.ApplyDamage(new DamageInfo {HealthAmount = DamageAmount});
+			var damageAmount = DamagePercentage * Owner.CurrentStacks * Owner.Damage;
+			Owner.Target.ApplyDamage(new DamageInfo {HealthAmount = damageAmount, Inflictor = this, Type = DamageType});
 		}
 	}
 }

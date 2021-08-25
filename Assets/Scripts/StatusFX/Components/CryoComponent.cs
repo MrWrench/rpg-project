@@ -12,7 +12,7 @@
 
 		protected override void OnStacksChanged(int deltaStacks)
 		{
-			var debuffAmount = deltaStacks * DebuffPerStack;
+			var debuffAmount = deltaStacks * DebuffPerStack * Owner.Strength;
 			Owner.Target.Stats.PoiseDamageDebuff += debuffAmount;
 			_debuffDelta += debuffAmount;
 		}

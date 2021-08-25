@@ -6,4 +6,5 @@ public struct DamageInfo
 	public float HealthAmount;
 	public float PoiseAmount;
 	public float Multiplier; // Used for time related scaling
+	public object Inflictor;
 }
