@@ -54,7 +54,7 @@ namespace StatusFX.Components
 
 		public override void Tick()
 		{
-			if(Owner.CurrentStacks <= 0 || _nextDischargeStamp > Time.CurrentTime)
+			if(_nextDischargeStamp > Time.CurrentTime)
 				return;
 			
 			Discharge();

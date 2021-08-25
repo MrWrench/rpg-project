@@ -10,9 +10,6 @@ namespace StatusFX.Components
 
 		public override void Tick()
 		{
-			if(Owner.CurrentStacks <= 0)
-				return;
-
 			TimeLeft -= DecayRate;
 			if(TimeLeft <= 0)
 				Owner.ChangeStacks(-1);
