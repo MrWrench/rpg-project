@@ -60,9 +60,13 @@ namespace Wrenge.StatusFX
 
 		public void Tick()
 		{
+			if(CurrentStacks <= 0)
+				return;
+			
 			foreach (var component in _componentsList)
 			{
-				component.Tick();
+				if(component.IsActive)
+					component.Tick();
 			}
 		}
 	}
