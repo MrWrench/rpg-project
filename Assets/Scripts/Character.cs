@@ -7,6 +7,7 @@ public class Character : MonoBehaviour
 {
 	[SerializeField] public Stats Stats = new Stats();
 	public readonly List<StatusEffect> StatusEffects = new List<StatusEffect>();
+	public event Action<DamageInfo> OnDamageTaken; 
 
 	private void Start()
 	{
@@ -17,6 +18,7 @@ public class Character : MonoBehaviour
 	{
 		Stats.Health -= info.HealthAmount * info.Multiplier;
 		Stats.Poise -= (info.PoiseAmount + Stats.PoiseDamageDebuff) * info.Multiplier;
+		OnDamageTaken?.Invoke(info);
 	}
 
 	private void Update()
