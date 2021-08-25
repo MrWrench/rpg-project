@@ -23,7 +23,8 @@ namespace StatusFX.Components
 
 		private void OnTargetDamageTaken(DamageInfo info)
 		{
-			if (!IsActive || info.Inflictor is ElectroComponent)
+			if (!IsActive ||
+			    info.Inflictor is StatusEffect status && status.Tag == Owner.Tag)
 				return;
 
 			AccumulatedDamage += info.HealthAmount;
@@ -37,7 +38,7 @@ namespace StatusFX.Components
 					.Where(x => x != null && x.Team == Owner.Target.Team);
 
 			var damage = Owner.Damage * DischargeDamageMult * Owner.CurrentStacks + AccumulatedDamage * Owner.Strength;
-			var damageInfo = new DamageInfo {HealthAmount = damage, Type = DamageType.Elemental, Inflictor = this};
+			var damageInfo = new DamageInfo {HealthAmount = damage, Type = DamageType.Elemental, Inflictor = Owner};
 			foreach (var character in collisions)
 			{
 				character.ApplyDamage(damageInfo);
@@ -54,9 +55,9 @@ namespace StatusFX.Components
 
 		public override void Tick()
 		{
-			if(_nextDischargeStamp > Time.CurrentTime)
+			if (_nextDischargeStamp > Time.CurrentTime)
 				return;
-			
+
 			Discharge();
 		}
 	}

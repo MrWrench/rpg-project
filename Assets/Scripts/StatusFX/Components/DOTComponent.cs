@@ -8,7 +8,7 @@
 		public override void Tick()
 		{
 			var damageAmount = DamagePercentage * Owner.CurrentStacks * Owner.Damage;
-			Owner.Target.ApplyDamage(new DamageInfo {HealthAmount = damageAmount, Inflictor = this, Type = DamageType});
+			Owner.Target.ApplyDamage(new DamageInfo {HealthAmount = damageAmount, Inflictor = Owner, Type = DamageType});
 		}
 	}
 }

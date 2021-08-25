@@ -22,10 +22,10 @@ namespace StatusFX
 
 		public void Add(StatusEffect effect)
 		{
-			if(_effectsDict.ContainsKey(effect.StatusTag))
+			if(_effectsDict.ContainsKey(effect.Tag))
 				return;
 			
-			_effectsDict.Add(effect.StatusTag, effect);
+			_effectsDict.Add(effect.Tag, effect);
 			_effectsList.Add(effect);
 		}
 

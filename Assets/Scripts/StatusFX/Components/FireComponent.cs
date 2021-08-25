@@ -34,7 +34,7 @@
 				}
 			}
 
-			var dinfo = new DamageInfo {HealthAmount = totalDamage, Inflictor = this, Type = DamageType.Elemental};
+			var dinfo = new DamageInfo {HealthAmount = totalDamage, Inflictor = Owner, Type = DamageType.Elemental};
 			Owner.Target.ApplyDamage(dinfo);
 			
 			for (int i = 0; i < count; i++)
