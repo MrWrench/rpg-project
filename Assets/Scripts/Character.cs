@@ -6,7 +6,7 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
 	[SerializeField] public Stats Stats = new Stats();
-	public readonly List<StatusEffect> StatusEffects = new List<StatusEffect>();
+	public readonly StatusEffects _statusEffects = new StatusEffects();
 	public event Action<DamageInfo> OnDamageTaken; 
 
 	private void Start()
@@ -23,9 +23,6 @@ public class Character : MonoBehaviour
 
 	private void Update()
 	{
-		foreach (var statusEffect in StatusEffects)
-		{
-			statusEffect.Tick();
-		}
+		_statusEffects.Tick();
 	}
 }
