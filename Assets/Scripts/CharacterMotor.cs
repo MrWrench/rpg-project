@@ -9,7 +9,7 @@ public class CharacterMotor : MonoBehaviour
 {
 	[Tooltip("Move speed of the character in m/s")]
 	public float MoveSpeed = 5.335f;
-	public float AnimationVelocityInterp = 0.7f;
+	public float MoveAcceleration = 20f;
 
 	[Tooltip("How fast the character turns to face movement direction")] [Range(0.0f, 0.3f)]
 	public float RotationSmoothTime = 0.12f;
@@ -31,10 +31,11 @@ public class CharacterMotor : MonoBehaviour
 
 	// player
 	private Vector3 _velocity;
-	private float _targetRotation;
+	private Quaternion _targetRotation;
 	private float _rotationVelocity;
 	private float _verticalVelocity;
 	private float _terminalVelocity = 53.0f;
+	private bool _useRootMotion = false;
 
 	// animation IDs
 	private readonly int _animIDSpeedX = Animator.StringToHash("SpeedX");
@@ -43,25 +44,24 @@ public class CharacterMotor : MonoBehaviour
 	private readonly int _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
 	private readonly int _animIDMeleeAttack = Animator.StringToHash("MeleeAttack");
 	private readonly int _animIDStateTime = Animator.StringToHash("StateTime");
+	private readonly int _animIDUseRootMotion = Animator.StringToHash("UseRootMotion");
 
 	private Animator _animator;
 	private Transform _transform;
 	private CharacterController _controller;
 	private PlayerInput _input;
 	private Vector3 _animatorVelocity;
+	private Camera _cam;
 
 	private void Awake()
 	{
+		_cam = Camera.main;
 		_animator = GetComponent<Animator>();
 		_input = GetComponent<PlayerInput>();
 		_controller = GetComponent<CharacterController>();
 		_transform = transform;
 	}
-
-	private void Start()
-	{
-	}
-
+	
 	private void Update()
 	{
 		GroundedCheck();
@@ -79,11 +79,11 @@ public class CharacterMotor : MonoBehaviour
 	private void Move()
 	{
 		var targetVelocity = new Vector3(_input.MoveInput.x, 0, _input.MoveInput.y).normalized * MoveSpeed;
-		_velocity = targetVelocity;
+		_velocity = Vector3.MoveTowards(_velocity, targetVelocity, MoveAcceleration * Time.deltaTime);
 
 		// update animator if using character
 		var newAnimatorVelocity = Quaternion.Inverse(_transform.rotation) * _velocity / MoveSpeed;
-		_animatorVelocity = Vector3.Lerp(newAnimatorVelocity, _animatorVelocity, AnimationVelocityInterp);
+		_animatorVelocity = newAnimatorVelocity;
 		_animator.SetFloat(_animIDSpeedX, _animatorVelocity.x);
 		_animator.SetFloat(_animIDSpeedY, _animatorVelocity.z);
 		// _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
@@ -112,12 +112,14 @@ public class CharacterMotor : MonoBehaviour
 		}
 
 		_controller.transform.rotation *= _animator.deltaRotation;
-		var useRootMotion = !Grounded;
 		
-		if(useRootMotion)
+		if(_useRootMotion)
 			_controller.Move(movement);
 		else
+		{
 			_controller.SimpleMove(_velocity);
+			_transform.rotation = _targetRotation;
+		}
 
 		_animator.SetBool(_animIDFreeFall, !Grounded);
 	}
@@ -130,6 +132,26 @@ public class CharacterMotor : MonoBehaviour
 		if (_input.Attack)
 			_animator.SetTrigger(_animIDMeleeAttack);
 		
+		_useRootMotion = _animator.GetBool(_animIDUseRootMotion);
 		Move();
+		Rotate();
+	}
+
+	private void Rotate()
+	{
+		var point = _cam.ScreenToWorldPoint(Input.mousePosition + Vector3.forward * Vector3.Distance(_cam.transform.position, transform.position));
+		var dir = (point - _transform.position).normalized;
+		var angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+		_targetRotation = Quaternion.Euler(0, angle, 0);
+	}
+
+	public void MeleeAttackStart()
+	{
+		
+	}
+
+	public void MeleeAttackEnd()
+	{
+		
 	}
 }
