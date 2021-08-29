@@ -966,6 +966,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 863938287300301195, guid: f4f5706cdb0b1e24b9287dad140d5fea,
+        type: 3}
+      propertyPath: _autoAimRadius
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2604403549801700011, guid: f4f5706cdb0b1e24b9287dad140d5fea,
         type: 3}
       propertyPath: m_Name
