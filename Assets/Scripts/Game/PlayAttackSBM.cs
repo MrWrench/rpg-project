@@ -13,6 +13,9 @@ namespace Game
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            var player = animator.GetComponent<PlayerCharacter>();
+            player.StartNewMeleeAttack();
+
             animator.SetInteger(_animIDAttackIndex, AttackIndex);
             if (Delay > 0)
                 Observable.Timer(TimeSpan.FromSeconds(Delay))

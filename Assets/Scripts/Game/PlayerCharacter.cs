@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Game.Input;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -29,6 +30,7 @@ namespace Game
         [Tooltip("What layers the character uses as ground")]
         public LayerMask GroundLayers;
 
+        [SerializeField] private int _autoAimRadius = 5;
         [SerializeField] private List<VisualEffect> _attackTrails = new();
         [SerializeField] private CharacterWeapon _weapon;
 
@@ -165,6 +167,30 @@ namespace Game
             var vfx = _attackTrails[AttackIndex];
             vfx.enabled = true;
             vfx.Play();
+        }
+
+        public void StartNewMeleeAttack()
+        {
+            AutoAim();
+        }
+
+        private void AutoAim()
+        {
+            var pos = _transform.position;
+            var candidate = Physics.OverlapSphere(pos, _autoAimRadius)
+                .Select(x => x.GetComponent<Character>())
+                .Where(x => x != null && x != this)
+                .OrderBy(x => Vector3.Distance(x.transform.position, pos))
+                .FirstOrDefault();
+
+            if (candidate != null)
+            {
+                var direction = candidate.transform.position - pos;
+                direction.y = 0;
+                direction.Normalize();
+                _transform.forward = direction;
+                _targetRotation = _transform.rotation;
+            }
         }
 
         public void MeleeAttackStart()
